@@ -1,3 +1,5 @@
+import { IMessage } from "./message";
+
 export interface IPhone {
 
     // Phone Settings
@@ -5,7 +7,7 @@ export interface IPhone {
     height: number,
     platform: "whatsapp" | "facebook" | "twitter" | "instagram" | "tiktok",
     lightmode?: true | boolean,
-
+    messages: Array<IMessage>,
 
     // Phone Status Settings
     battery?: 1 | 2 | 3 | 4,
