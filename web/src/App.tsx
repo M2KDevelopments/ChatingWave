@@ -25,7 +25,7 @@ function App() {
       {
         id: "2",
         me: true,
-        reactions: [],
+        reactions: ["🫡", "🫵🏽", "👉🏽", "💯", "🔥"],
         text: "Hello there how are you doing?",
         time: "12:25",
         name: "Me",
@@ -38,7 +38,7 @@ function App() {
         text: "Hello there how are you doing?\nHello there how are you doing?\nHello there how are you doing? Hello there how are you doing? Hello there how are you doing?",
         time: "12:28",
         name: "Me",
-        replyId: "1",
+        replyId: "2",
         read: true,
       },
 
@@ -90,7 +90,7 @@ function App() {
       {
         id: "9",
         me: true,
-        reactions: ["🫡"],
+        reactions: ["🫡", "🫡"],
         text: "Hello there how are you doing?\nHello there how are you doing?\nHello there how are you doing? Hello there how are you doing? Hello there how are you doing?",
         time: "12:28",
         name: "Me",
@@ -110,6 +110,7 @@ function App() {
           platform="whatsapp"
           lightmode={true}
           messages={messages}
+          online={true}
         />
       </section>
       <section className="w-2/3 bg-slate-300">

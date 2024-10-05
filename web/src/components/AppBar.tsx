@@ -18,13 +18,13 @@ function AppBar(props: IPhone) {
       </div>
 
       {/* Name And Image */}
-      <div className="flex gap-7 w-full">
+      <div className="flex gap-4 w-full">
         <div>
           <img src={props.image || emily} alt="Emily" className='ml-4 aspect-square rounded-full' style={{ height: props.height * imageSizePercentage }} />
         </div>
-        <div className='flex flex-col'>
+        <div className='flex flex-col justify-center'>
           <p>{props.name}</p>
-          <span className='font-thin italic text-sm'>Online</span>
+          {props.online ? <span className='font-thin italic text-sm'>Online</span> : null}
         </div>
       </div>
 
