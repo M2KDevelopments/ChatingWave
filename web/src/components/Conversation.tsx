@@ -29,7 +29,7 @@ function Conversation(props: IPhone) {
 
                             {/* Reply UI */}
                             {msg.replyId && messageMap.get(msg.replyId) ?
-                                <div style={{ borderColor: messageMap.get(msg.replyId)!.me ? "#15803d" : "#7e22ce" }} className='border-l-4 rounded-md flex bg-[#d1f4cc]'>
+                                <div style={{ borderColor: messageMap.get(msg.replyId)!.me ? "#15803d" : "#7e22ce", background: msg.me ? "#d1f4cc" : "#f5f5f5" }} className='border-l-4 rounded-md flex'>
                                     <div className='flex flex-col gap-2 px-3 overflow-hidden w-[80%] text-ellipsis' style={{ maxHeight: props.height * replyMessageHeightPercentage }}>
                                         <p style={{ color: messageMap.get(msg.replyId)!.me ? "#15803d" : "#7e22ce" }} className='font-bold'>{messageMap.get(msg.replyId)!.me ? "You" : messageMap.get(msg.replyId)!.name}</p>
                                         <p className='font-thin'>{messageMap.get(msg.replyId)!.text}</p>

@@ -120,6 +120,7 @@ function App() {
         reactions: [],
         text: "Hello there how are you doing?",
         time: "12:24",
+        replyId: "1",
         name: "Emily Bank"
       },
       {
