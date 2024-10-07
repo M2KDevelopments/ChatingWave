@@ -5,11 +5,13 @@ import domtoimage from 'dom-to-image';
 import { IoMdHappy } from "react-icons/io";
 import { IoSend } from "react-icons/io5";
 import { BsCameraVideo, BsPersonAdd } from "react-icons/bs";
-import { FaClock } from "react-icons/fa";
+import { FaClock, FaStop } from "react-icons/fa";
 import emily from './assets/emily.jpg';
 import { IPerson } from "./interfaces/person";
+import Confetti from 'react-confetti'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import swal from "sweetalert";
 
 // Export Resolutions
 const resolutions = new Map<string, number>();
@@ -32,6 +34,11 @@ function App() {
   const [messages, setMessages] = useState([] as Array<IMessage>)
   const [people, setPeople] = useState([{ name: "Emily Banks", image: emily }] as Array<IPerson>);
   const [indexPerson, setIndexPerson] = useState(0);
+
+  // Preview Settings
+  const [playing, setPlaying] = useState(false);
+  const [templateMessages, setTemplateMessages] = useState([] as Array<IMessage>)
+  const waitFor = (seconds: number) => new Promise(resolve => setTimeout(resolve, seconds * 1000));
 
   // Message Settings
   const [text, setText] = useState("");
@@ -200,12 +207,63 @@ function App() {
     }
   }
 
-  const onPreview = () => {
+
+  const onStop = () => {
+    setTemplateMessages([]);
+    setPlaying(false);
+    setLoading(false)
+  }
+
+  const onPreview = async () => {
+
+    // modal query
+    const result = await swal({
+      title: `Preview Chat`,
+      text: `Do you want to preview this chat`,
+      icon: 'info',
+      buttons: ['No', 'Yes']
+    });
+
+    if (!result) return;
+
+    setPlaying(true);
+    setLoading(true);
+    const container = document.querySelector('[aria-label="conversation"]');
+
+    const list = [];
+    for (const msg of messages) {
+
+      // scroll to the bottom
+      if (container) container.scrollBy(0, messages.length * 2000);
+
+      // wait for the message to appear
+      await waitFor(msg.delay || 2);
+
+      // add message to the list
+      list.push(msg)
+      setTemplateMessages([...list]);
+
+      // scroll to the bottom
+      if (container) container.scrollBy(0, messages.length * 2000);
+
+
+    }
+
+
+    // scroll to the bottom
+    if (container) container.scrollTo(0, 0);
+
+    // stop animation
+    onStop();
+
+    // display toastify notification
+    toast('Done preview');
 
   }
 
   return (
     <main className="overflow-hidden">
+
 
       <div className="flex w-screen h-screen overflow-hidden bg-slate-50 relative z-10">
         {/* Preview UI */}
@@ -217,7 +275,7 @@ function App() {
             height={size.height}
             platform={platform}
             lightmode={lightmode}
-            messages={messages}
+            messages={playing ? templateMessages : messages}
             online={online}
           />
         </section>
@@ -245,10 +303,16 @@ function App() {
             </button>
           </form>
 
-          <button className="mt-20 flex content-center items-center align-middle text-center justify-center gap-4 w-2/4 px-6 py-2 font-bold text-white text-3xl bg-gradient-to-tr from-blue-400 to-blue-500 shadow-2xl shadow-blue-400 hover:shadow-3xl hover:shadow-blue-300 duration-200 cursor-pointer rounded-full" disabled={loading} onClick={onPreview}>
-            <span>Preview</span>
-            <BsCameraVideo />
-          </button>
+          {playing ?
+            <button className="mt-20 flex content-center items-center align-middle text-center justify-center gap-4 w-2/4 px-6 py-2 font-bold text-white text-3xl bg-gradient-to-tr from-red-400 to-red-500 shadow-2xl shadow-red-400 hover:shadow-3xl hover:shadow-blue-300 duration-200 cursor-pointer rounded-full" onClick={onStop}>
+              <span>Stop</span>
+              <FaStop />
+            </button> :
+            <button className="mt-20 flex content-center items-center align-middle text-center justify-center gap-4 w-2/4 px-6 py-2 font-bold text-white text-3xl bg-gradient-to-tr from-blue-400 to-blue-500 shadow-2xl shadow-blue-400 hover:shadow-3xl hover:shadow-blue-300 duration-200 cursor-pointer rounded-full" disabled={loading} onClick={onPreview}>
+              <span>Preview</span>
+              <BsCameraVideo />
+            </button>
+          }
 
           <div className="mt-20 w-1/4 flex gap-3 justify-center">
             <select className="p-2 rounded-3xl shadow-xl" value={platform} onChange={e => setPlatform(e.target.value)}>
@@ -296,8 +360,8 @@ function App() {
         />
       </div>
 
-      {/* Notification Popup UI */}
       <ToastContainer />
+      <Confetti width={500} height={500} />
 
     </main>
   )
