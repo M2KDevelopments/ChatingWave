@@ -234,7 +234,7 @@ function App() {
     for (const msg of messages) {
 
       // scroll to the bottom
-      if (container) container.scrollBy(0, messages.length * 2000);
+      if (container) container.scrollTo(0, messages.length * 2000);
 
       // wait for the message to appear
       await waitFor(msg.delay || 2);
@@ -244,11 +244,9 @@ function App() {
       setTemplateMessages([...list]);
 
       // scroll to the bottom
-      if (container) container.scrollBy(0, messages.length * 2000);
-
+      if (container) container.scrollTo(0, messages.length * 2000);
 
     }
-
 
     // scroll to the bottom
     if (container) container.scrollTo(0, 0);
@@ -267,7 +265,7 @@ function App() {
 
       <div className="flex w-screen h-screen overflow-hidden bg-slate-50 relative z-10">
         {/* Preview UI */}
-        <section className="w-2/5 flex justify-center flex-col m-auto items-center align-middle p-4 ">
+        <section className="w-2/5 flex justify-center flex-col m-auto items-center align-middle p-4">
           <Phone
             name={people[indexPerson].name}
             image={people[indexPerson].image}
