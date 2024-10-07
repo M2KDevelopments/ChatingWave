@@ -6,12 +6,15 @@ import { IoMdHappy } from "react-icons/io";
 import { IoSend } from "react-icons/io5";
 import { BsCameraVideo, BsPersonAdd } from "react-icons/bs";
 import { FaClock, FaStop } from "react-icons/fa";
-import emily from './assets/emily.jpg';
 import { IPerson } from "./interfaces/person";
 import Confetti from 'react-confetti'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import swal from "sweetalert";
+
+// Assets
+import whatsappAudio from './assets/snd-whatsapp.mp3';
+import emily from './assets/emily.jpg';
 
 // Export Resolutions
 const resolutions = new Map<string, number>();
@@ -229,6 +232,8 @@ function App() {
     setPlaying(true);
     setLoading(true);
     const container = document.querySelector('[aria-label="conversation"]');
+    const audio = new Audio(whatsappAudio);
+
 
     const list = [];
     for (const msg of messages) {
@@ -242,6 +247,9 @@ function App() {
       // add message to the list
       list.push(msg)
       setTemplateMessages([...list]);
+
+      // play audio
+      audio.play();
 
       // scroll to the bottom
       if (container) container.scrollTo(0, messages.length * 2000);
