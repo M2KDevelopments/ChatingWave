@@ -63,7 +63,7 @@ function Conversation(props: IPhone) {
                             {/* Reactions */}
                             {msg.reactions.length ?
                                 <div style={{ left: msg.me ? undefined : 4, right: msg.me ? 4 : undefined }} className='w-fit relative -bottom-7 rounded-full px-2 bg-white shadow-sm flex justify-center items-center gap-2'>
-                                    {msg.reactions.filter((_r, i: number) => i < 3).map(emoji => <span>{emoji}</span>)}
+                                    {msg.reactions.filter((_r, i: number) => i < 3).map((emoji, i) => <span key={i + "emoji"}>{emoji}</span>)}
                                     {msg.reactions.length > 1 ? <span>{msg.reactions.length}</span> : null}
                                 </div>
                                 : null}

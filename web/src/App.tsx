@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import Phone from "./components/Phone";
 import { IMessage } from "./interfaces/message";
 import domtoimage from 'dom-to-image';
@@ -7,6 +7,12 @@ import { IoSend } from "react-icons/io5";
 import { BsCameraVideo, BsPersonAdd } from "react-icons/bs";
 import { FaClock, FaStop } from "react-icons/fa";
 import { IPerson } from "./interfaces/person";
+
+// FFMPEG - https://ffmpegwasm.netlify.app/docs/getting-started/usage
+import { FFmpeg } from '@ffmpeg/ffmpeg';
+import { fetchFile, toBlobURL } from '@ffmpeg/util';
+
+// Popups and Modals
 import Confetti from 'react-confetti'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -49,7 +55,7 @@ function App() {
   // Export Settings
   const [resolution, setResolution] = useState("720");
   const [exportType, setExportType] = useState("video");
-
+  const ffmpegRef = useRef(new FFmpeg());
 
   useEffect(() => {
 
@@ -157,6 +163,34 @@ function App() {
   }, [])
 
 
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const baseURL = 'https://unpkg.com/@ffmpeg/core-mt@0.12.6/dist/esm';
+        const ffmpeg = ffmpegRef.current;
+        ffmpeg.on('log', console.log);
+
+        console.log('Loading FFMPEG')
+        // toBlobURL is used to bypass CORS issue, urls with the same
+        // domain can be used directly.
+        await ffmpeg.load({
+          coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
+          wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+          workerURL: await toBlobURL(`${baseURL}/ffmpeg-core.worker.js`, "text/javascript"),
+          // workerURL: await toBlobURL(`${baseURL}/ffmpeg-core.worker.js`, "text/javascript", true, console.log),
+        })
+
+        console.log('Loaded FFMPEG.wasm');
+      } catch (err) {
+        console.log(err);
+      }
+    }
+
+
+    load();
+  }, [])
+
+
   const onAddMessage = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -200,7 +234,20 @@ function App() {
         a.click();
         a.remove();
       } else if (exportType == 'video') {
-        console.log('Coming Soon');
+        
+        // Execute FFMPeg command
+        const ffmpeg = ffmpegRef.current;
+        await ffmpeg.writeFile('input.avi', await fetchFile('https://raw.githubusercontent.com/ffmpegwasm/testdata/master/video-15s.avi'));
+        await ffmpeg.exec(['-i', 'input.avi', 'output.mp4']);
+        
+        // Download Video File
+        const data = await ffmpeg.readFile('output.mp4');
+        a.href = URL.createObjectURL(new Blob([data], { type: 'video/mp4' }));;
+        a.download = 'Chating Waving.mp4';
+        a.click();
+        a.remove();
+        const ok = await ffmpeg.deleteFile('input.avi');
+        console.log(ok);
       }
       toast("Exported " + exportType)
     } catch (e) {
@@ -347,7 +394,7 @@ function App() {
             </select>
           </div>
 
-          <button className="w-1/4 px-6 py-2 font-bold text-white bg-gradient-to-tr from-amber-400 to-amber-500 shadow-lg hover:shadow-2xl hover:shadow-amber-300 duration-200 cursor-pointer rounded-3xl" disabled={loading} onClick={onExport}>Export</button>
+          <button className="w-1/4 px-6 py-2 font-bold text-white bg-gradient-to-tr from-amber-400 to-amber-500 shadow-lg hover:shadow-2xl hover:shadow-amber-300 duration-200 cursor-pointer rounded-3xl" onClick={onExport}>Export</button>
 
         </section>
 
