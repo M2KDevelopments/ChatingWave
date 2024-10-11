@@ -218,32 +218,32 @@ function App() {
       if (exportType == 'png') {
         const img = await domtoimage.toPng(phone);
         a.href = img;
-        a.download = 'Chating Waving.png';
+        a.download = 'Chating Wave.png';
         a.click();
         a.remove();
       } else if (exportType == 'jpeg') {
         const img = await domtoimage.toJpeg(phone);
         a.href = img;
-        a.download = 'Chating Waving.jpg';
+        a.download = 'Chating Wave.jpg';
         a.click();
         a.remove();
       } else if (exportType == 'svg') {
         const img = await domtoimage.toSvg(phone);
         a.href = img;
-        a.download = 'Chating Waving.svg';
+        a.download = 'Chating Wave.svg';
         a.click();
         a.remove();
       } else if (exportType == 'video') {
-        
+
         // Execute FFMPeg command
         const ffmpeg = ffmpegRef.current;
         await ffmpeg.writeFile('input.avi', await fetchFile('https://raw.githubusercontent.com/ffmpegwasm/testdata/master/video-15s.avi'));
         await ffmpeg.exec(['-i', 'input.avi', 'output.mp4']);
-        
+
         // Download Video File
         const data = await ffmpeg.readFile('output.mp4');
         a.href = URL.createObjectURL(new Blob([data], { type: 'video/mp4' }));;
-        a.download = 'Chating Waving.mp4';
+        a.download = 'Chating Wave.mp4';
         a.click();
         a.remove();
         const ok = await ffmpeg.deleteFile('input.avi');
@@ -278,10 +278,9 @@ function App() {
 
     setPlaying(true);
     setLoading(true);
-    const container = document.querySelector('[aria-label="conversation"]');
+     const container = document.querySelector('[aria-label="conversation"]');
     const audio = new Audio(whatsappAudio);
-
-
+ 
     const list = [];
     for (const msg of messages) {
 
@@ -302,12 +301,16 @@ function App() {
       if (container) container.scrollTo(0, messages.length * 2000);
 
     }
-
+ 
     // scroll to the bottom
     if (container) container.scrollTo(0, 0);
 
+
+ 
     // stop animation
     onStop();
+
+
 
     // display toastify notification
     toast('Done preview');
