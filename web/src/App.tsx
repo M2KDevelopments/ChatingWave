@@ -13,13 +13,12 @@ import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { fetchFile, toBlobURL } from '@ffmpeg/util';
 
 // Popups and Modals
-import Confetti from 'react-confetti'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import swal from "sweetalert";
 
 // Assets
-import whatsappAudio from './assets/snd-whatsapp.mp3';
+import whatsappAudio from './assets/snd-whatsapp-new.mp3';
 import emily from './assets/emily.jpg';
 
 // Export Resolutions
@@ -34,6 +33,7 @@ resolutions.set('2160', 3840)
 function App() {
 
   const [loading, setLoading] = useState(false);
+  const [ffmpegLoaded, setFFmpegLoaded] = useState(false);
 
   // Phone Settings
   const [lightmode, setLightMode] = useState(true);
@@ -43,6 +43,7 @@ function App() {
   const [messages, setMessages] = useState([] as Array<IMessage>)
   const [people, setPeople] = useState([{ name: "Emily Banks", image: emily }] as Array<IPerson>);
   const [indexPerson, setIndexPerson] = useState(0);
+  const currentPerson = 0;
 
   // Preview Settings
   const [playing, setPlaying] = useState(false);
@@ -54,7 +55,7 @@ function App() {
 
   // Export Settings
   const [resolution, setResolution] = useState("720");
-  const [exportType, setExportType] = useState("video");
+  const [exportType, setExportType] = useState("png");
   const ffmpegRef = useRef(new FFmpeg());
 
   useEffect(() => {
@@ -71,17 +72,18 @@ function App() {
     ])
 
     // Todo Automatically adjust as the window resizes
-    setSize({ width: 480, height: 854 });
+    // setSize({ width: 480, height: 854 });
+    setSize({ width: 480, height: resolutions.get("480")! });
 
     // Set Messages
     setMessages([
       {
         id: "1",
         me: false,
-        reactions: [],
         text: "Hello there how are you doing?",
         time: "12:24",
-        name: "Emily Bank"
+        name: "Emily Bank",
+        reactions: ["🫡", "🫵🏽", "👉🏽", "💯", "🔥"],
       },
       {
         id: "2",
@@ -179,7 +181,7 @@ function App() {
           workerURL: await toBlobURL(`${baseURL}/ffmpeg-core.worker.js`, "text/javascript"),
           // workerURL: await toBlobURL(`${baseURL}/ffmpeg-core.worker.js`, "text/javascript", true, console.log),
         })
-
+        setFFmpegLoaded(true);
         console.log('Loaded FFMPEG.wasm');
       } catch (err) {
         console.log(err);
@@ -196,13 +198,14 @@ function App() {
 
     if (text.trim() == '') return;
 
+
     const message = {
       id: crypto.randomUUID(),
-      me: true,
+      me: indexPerson == -1,
       reactions: [],
       text: text,
       time: new Date().toLocaleTimeString(),
-      name: "Me",
+      name: indexPerson == -1 ? "Me" : people[indexPerson].name,
       read: true,
     }
     setMessages([...messages, message]);
@@ -235,10 +238,29 @@ function App() {
         a.remove();
       } else if (exportType == 'video') {
 
+        const images = [] as string[];
+        const frames = 70;
+
+        // Get the images for the video
+        for (let i = 0; i < frames; i++) {
+          const imgB64 = await domtoimage.toJpeg(phone);
+          images.push(imgB64);
+          console.log(i, 'out', frames, parseInt((i * 100 / frames).toString()), '%');
+        }
+
         // Execute FFMPeg command
         const ffmpeg = ffmpegRef.current;
-        await ffmpeg.writeFile('input.avi', await fetchFile('https://raw.githubusercontent.com/ffmpegwasm/testdata/master/video-15s.avi'));
-        await ffmpeg.exec(['-i', 'input.avi', 'output.mp4']);
+        for (let i = 1; i < images.length; i++) {
+          const name = `${i < 10 ? `0${i}` : i}.jpeg`;
+          const image = await fetchFile(images[i]); // UintArray
+          await ffmpeg.writeFile(name, image);
+          console.log(name, 'added');
+        }
+
+        // await ffmpeg.writeFile('input.avi', await fetchFile('https://raw.githubusercontent.com/ffmpegwasm/testdata/master/video-15s.avi'));
+        const command = `-r 30 -i %2d.jpeg -pix_fmt yuv420p output.mp4`.split(' ');
+        await ffmpeg.exec(command);
+
 
         // Download Video File
         const data = await ffmpeg.readFile('output.mp4');
@@ -246,10 +268,14 @@ function App() {
         a.download = 'Chating Wave.mp4';
         a.click();
         a.remove();
-        const ok = await ffmpeg.deleteFile('input.avi');
-        console.log(ok);
+        for (let i = 1; i < images.length; i++) {
+          const name = `${i < 10 ? `0${i}` : i}.jpeg`
+          await ffmpeg.deleteFile(name);
+        }
       }
-      toast("Exported " + exportType)
+
+      // Show done popup
+      if (exportType != 'loading') toast("Exported " + exportType)
     } catch (e) {
       console.log(e);
     } finally {
@@ -276,12 +302,17 @@ function App() {
 
     if (!result) return;
 
+
+    // Loading States
     setPlaying(true);
     setLoading(true);
-     const container = document.querySelector('[aria-label="conversation"]');
+
+    // DOM Elements
+    const container = document.querySelector('[aria-label="conversation"]');
     const audio = new Audio(whatsappAudio);
- 
     const list = [];
+
+    // Load Messages
     for (const msg of messages) {
 
       // scroll to the bottom
@@ -295,21 +326,19 @@ function App() {
       setTemplateMessages([...list]);
 
       // play audio
-      audio.play();
+      if (!msg.me) audio.play();
 
       // scroll to the bottom
       if (container) container.scrollTo(0, messages.length * 2000);
 
     }
- 
+
     // scroll to the bottom
     if (container) container.scrollTo(0, 0);
 
 
- 
     // stop animation
     onStop();
-
 
 
     // display toastify notification
@@ -325,8 +354,8 @@ function App() {
         {/* Preview UI */}
         <section className="w-2/5 flex justify-center flex-col m-auto items-center align-middle p-4">
           <Phone
-            name={people[indexPerson].name}
-            image={people[indexPerson].image}
+            name={people[currentPerson].name}
+            image={people[currentPerson].image}
             width={size.width}
             height={size.height}
             platform={platform}
@@ -345,6 +374,9 @@ function App() {
                 <img title={person.name} src={person.image} alt={person.name} className="rounded-full" />
               </div>
             )}
+            <div onClick={() => setIndexPerson(-1)} style={{ backgroundColor: indexPerson == -1 ? "#f59e0b" : "#f8fafc" }} className="w-16 rounded-full text-amber-900 bg-slate-50 p-1 cursor-pointer hover:bg-purple-600 duration-200 flex justify-center items-center shadow hover:shadow-2xl hover:shadow-purple-100 hover:text-white">
+              <span>You</span>
+            </div>
             <div className="w-16 rounded-full text-amber-900 bg-slate-50 p-1 cursor-pointer hover:bg-purple-600 duration-200 flex justify-center items-center shadow hover:shadow-2xl hover:shadow-purple-100 hover:text-white">
               <BsPersonAdd size={50} title="Add Person" className="rounded-full" />
             </div>
@@ -384,16 +416,18 @@ function App() {
               <option value="360">360p</option>
               <option value="480">480p</option>
               <option value="720">720p HD</option>
-              <option value="1080">10800p HD</option>
+              <option value="1080">1080p HD</option>
               <option value="1440">2K HD</option>
+              <option value="2160">4K HD</option>
+
             </select>
 
             <select className="p-2 rounded-3xl shadow-xl" value={exportType} onChange={e => setExportType(e.target.value)}>
-              <option value="png">Png</option>
-              <option value="jpeg">Jpeg</option>
+              <option value="png">PNG</option>
+              <option value="jpeg">JPEG</option>
               <option value="svg">SVG</option>
-              <option value="gif">Gif</option>
-              <option value="video">Video</option>
+              <option value="gif">GIF</option>
+              {ffmpegLoaded ? <option value="video">VIDEO</option> : <option value="loading">Loading</option>}
             </select>
           </div>
 
@@ -417,7 +451,7 @@ function App() {
       </div>
 
       <ToastContainer />
-      <Confetti width={500} height={500} />
+
 
     </main>
   )

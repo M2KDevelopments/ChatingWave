@@ -10,6 +10,9 @@ const replyMessageHeightPercentage = 13 / 100.0;
 
 function Conversation(props: IPhone) {
 
+    const fontSize = 21 * (props.height / 1280);
+
+
     const messageMap = useMemo(() => {
         const map = new Map<string, IMessage>();
         for (const msg of props.messages) map.set(msg.id, msg);
@@ -31,8 +34,8 @@ function Conversation(props: IPhone) {
                             {msg.replyId && messageMap.get(msg.replyId) ?
                                 <div style={{ borderColor: messageMap.get(msg.replyId)!.me ? "#15803d" : "#7e22ce", background: msg.me ? "#d1f4cc" : "#f5f5f5" }} className='border-l-4 rounded-md flex'>
                                     <div className='flex flex-col gap-2 px-3 overflow-hidden w-[80%] text-ellipsis' style={{ maxHeight: props.height * replyMessageHeightPercentage }}>
-                                        <p style={{ color: messageMap.get(msg.replyId)!.me ? "#15803d" : "#7e22ce" }} className='font-bold'>{messageMap.get(msg.replyId)!.me ? "You" : messageMap.get(msg.replyId)!.name}</p>
-                                        <p className='font-thin'>{messageMap.get(msg.replyId)!.text}</p>
+                                        <p style={{ color: messageMap.get(msg.replyId)!.me ? "#15803d" : "#7e22ce", fontSize: fontSize }} className='font-bold'>{messageMap.get(msg.replyId)!.me ? "You" : messageMap.get(msg.replyId)!.name}</p>
+                                        <p style={{ fontSize: fontSize }} className='font-thin'>{messageMap.get(msg.replyId)!.text}</p>
                                     </div>
                                     <div className='w-[20%]'>
                                         {messageMap.get(msg.replyId)!.image ?
@@ -50,9 +53,11 @@ function Conversation(props: IPhone) {
 
 
                             {/* Actual Message */}
-                            <p className='mx-3 mt-2 mb-6'>{msg.text}</p>
+                            <p style={{ fontSize: fontSize }} className='mx-3 mt-2 mb-6'>{msg.text}</p>
+
+
                             {/* Time */}
-                            <span className='flex gap-2 absolute bottom-0 right-2 text-sm font-thin text-gray-500'>
+                            <span style={{ fontSize: fontSize }} className='flex gap-2 absolute bottom-0 right-2 text-sm font-thin text-gray-500'>
                                 {msg.time}
                                 {
                                     !msg.me ? null : <>
@@ -60,13 +65,18 @@ function Conversation(props: IPhone) {
                                     </>
                                 }
                             </span>
+
+
                             {/* Reactions */}
-                            {msg.reactions.length ?
-                                <div style={{ left: msg.me ? undefined : 4, right: msg.me ? 4 : undefined }} className='w-fit relative -bottom-7 rounded-full px-2 bg-white shadow-sm flex justify-center items-center gap-2'>
-                                    {msg.reactions.filter((_r, i: number) => i < 3).map((emoji, i) => <span key={i + "emoji"}>{emoji}</span>)}
-                                    {msg.reactions.length > 1 ? <span>{msg.reactions.length}</span> : null}
-                                </div>
-                                : null}
+                            <div className='w-full relative'>
+                                {msg.reactions.length ?
+                                    <div style={{ fontSize: fontSize, left: msg.me ? undefined : 4, right: msg.me ? 4 : undefined }} className='w-fit absolute -bottom-7 rounded-full px-2 bg-white shadow-sm flex justify-center items-center gap-2'>
+                                        {msg.reactions.filter((_r, i: number) => i < 3).map((emoji, i) => <span key={i + "emoji"}>{emoji}</span>)}
+                                        {msg.reactions.length > 1 ? <span>{msg.reactions.length}</span> : null}
+                                    </div>
+                                    : null}
+                            </div>
+
 
                         </div>
                     )

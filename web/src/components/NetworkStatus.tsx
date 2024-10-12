@@ -19,6 +19,7 @@ const iconSizePercentage = 2 / 100;
 function NetworkStatus(props: IPhone) {
 
     const [time, setTime] = useState(new Date().toLocaleTimeString())
+    const fontSize = 23 * (props.height / 1280);
 
 
     // Count every second
@@ -30,7 +31,7 @@ function NetworkStatus(props: IPhone) {
 
     return (
         <div className='w-full flex content-center bg-gray-100 p-4'>
-            <p className='w-1/2 text-start'>{props.time || time}</p>
+            <p style={{ fontSize }} className='w-1/2 text-start'>{props.time || time}</p>
             <div className='w-1/2 flex gap-3 justify-end content-center'>
 
                 {/* Wifi */}

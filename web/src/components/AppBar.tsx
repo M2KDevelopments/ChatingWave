@@ -9,6 +9,12 @@ const imageSizePercentage = 5 / 100.0;
 
 
 function AppBar(props: IPhone) {
+
+  // font size
+  const nameFontSize = 22 * (props.height / 1280);
+  const onlineFontSize = 17 * (props.height / 1280);
+
+
   return (
     <div className='w-full bg-gray-100 p-4 text-gray-900 flex gap-4 items-center' style={{ height: props.height * appBarSizePercentage }}>
 
@@ -23,8 +29,8 @@ function AppBar(props: IPhone) {
           <img src={props.image || emily} alt="Emily" className='ml-4 aspect-square rounded-full' style={{ height: props.height * imageSizePercentage }} />
         </div>
         <div className='flex flex-col justify-center'>
-          <p>{props.name}</p>
-          {props.online ? <span className='font-thin italic text-sm'>Online</span> : null}
+          <p style={{ fontSize: nameFontSize }}>{props.name}</p>
+          {props.online ? <span style={{ fontSize: onlineFontSize }} className='font-thin italic' >Online</span> : null}
         </div>
       </div>
 
