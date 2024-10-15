@@ -9,4 +9,6 @@ export interface IMessage {
     reactions: Array<string>, // list of emojis
     read?: boolean,
     delay?: number,//in seconds
+    opacity: number,//in seconds
+    scale: number,//in seconds
 }

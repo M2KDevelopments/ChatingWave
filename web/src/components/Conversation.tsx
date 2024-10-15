@@ -26,8 +26,16 @@ function Conversation(props: IPhone) {
                 {
                     props.messages.map((msg, index) =>
                         <div
-                            style={{ marginTop: index > 0 && props.messages[index - 1].me != msg.me ? 20 : 0, background: msg.me ? "#d9fdd3" : "white", alignSelf: msg.me ? "end" : "auto", marginBottom: msg.reactions.length ? 22 : 0 }}
-                            className='message relative text-gray-900 max-w-[80%] rounded-lg shadow-lg flex flex-col p-2'
+                            style={{
+                                marginTop: index > 0 && props.messages[index - 1].me != msg.me ? 20 : 0,
+                                background: msg.me ? "#d9fdd3" : "white",
+                                alignSelf: msg.me ? "end" : "auto", marginBottom: msg.reactions.length ? 22 : 0,
+                                opacity: msg.opacity,
+                                scale: msg.scale,
+                            }}
+
+                            className='relative text-gray-900 max-w-[80%] rounded-lg shadow-lg flex flex-col p-2'
+                            id={'msg' + msg.id}
                             key={msg.id + index}>
 
                             {/* Reply UI */}

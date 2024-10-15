@@ -21,6 +21,8 @@ import swal from "sweetalert";
 import whatsappAudio from './assets/snd-whatsapp-new.mp3';
 import emily from './assets/emily.jpg';
 
+const audio = new Audio(whatsappAudio);
+
 // Export Resolutions
 const resolutions = new Map<string, number>();
 resolutions.set('360', 640)
@@ -46,6 +48,7 @@ function App() {
   const currentPerson = 0;
 
   // Preview Settings
+  const [progress, setProgress] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [templateMessages, setTemplateMessages] = useState([] as Array<IMessage>)
   const waitFor = (seconds: number) => new Promise(resolve => setTimeout(resolve, seconds * 1000));
@@ -84,6 +87,8 @@ function App() {
         time: "12:24",
         name: "Emily Bank",
         reactions: ["🫡", "🫵🏽", "👉🏽", "💯", "🔥"],
+        scale: 1,
+        opacity: 1,
       },
       {
         id: "2",
@@ -92,7 +97,9 @@ function App() {
         text: "Hello there how are you doing?",
         time: "12:25",
         name: "Me",
-        image: "https://images.pexels.com/photos/886521/pexels-photo-886521.jpeg?auto=compress&cs=tinysrgb&w=600"
+        image: "https://images.pexels.com/photos/886521/pexels-photo-886521.jpeg?auto=compress&cs=tinysrgb&w=600",
+        scale: 1,
+        opacity: 1,
       },
       {
         id: "3",
@@ -103,6 +110,8 @@ function App() {
         name: "Me",
         replyId: "2",
         read: true,
+        scale: 1,
+        opacity: 1,
       },
 
       {
@@ -111,7 +120,9 @@ function App() {
         reactions: [],
         text: "Hello there how are you doing?",
         time: "12:24",
-        name: "Emily Bank"
+        name: "Emily Bank",
+        scale: 1,
+        opacity: 1,
       },
       {
         id: "5",
@@ -120,7 +131,9 @@ function App() {
         text: "Hello there how are you doing?",
         time: "12:25",
         name: "Me",
-        image: "https://images.pexels.com/photos/886521/pexels-photo-886521.jpeg?auto=compress&cs=tinysrgb&w=600"
+        image: "https://images.pexels.com/photos/886521/pexels-photo-886521.jpeg?auto=compress&cs=tinysrgb&w=600",
+        scale: 1,
+        opacity: 1,
       },
       {
         id: "6",
@@ -131,6 +144,8 @@ function App() {
         name: "Me",
         replyId: "1",
         read: true,
+        scale: 1,
+        opacity: 1,
       },
 
       {
@@ -140,7 +155,9 @@ function App() {
         text: "Hello there how are you doing?",
         time: "12:24",
         replyId: "1",
-        name: "Emily Bank"
+        name: "Emily Bank",
+        scale: 1,
+        opacity: 1,
       },
       {
         id: "8",
@@ -149,7 +166,9 @@ function App() {
         text: "Hello there how are you doing?",
         time: "12:25",
         name: "Me",
-        image: "https://images.pexels.com/photos/886521/pexels-photo-886521.jpeg?auto=compress&cs=tinysrgb&w=600"
+        image: "https://images.pexels.com/photos/886521/pexels-photo-886521.jpeg?auto=compress&cs=tinysrgb&w=600",
+        scale: 1,
+        opacity: 1,
       },
       {
         id: "9",
@@ -160,6 +179,8 @@ function App() {
         name: "Me",
         replyId: "1",
         read: true,
+        scale: 1,
+        opacity: 1,
       }
     ]);
   }, [])
@@ -207,6 +228,8 @@ function App() {
       time: new Date().toLocaleTimeString(),
       name: indexPerson == -1 ? "Me" : people[indexPerson].name,
       read: true,
+      scale: 1,
+      opacity: 1,
     }
     setMessages([...messages, message]);
     setText("")
@@ -238,15 +261,75 @@ function App() {
         a.remove();
       } else if (exportType == 'video') {
 
-        const images = [] as string[];
-        const frames = 70;
 
-        // Get the images for the video
-        for (let i = 0; i < frames; i++) {
-          const imgB64 = await domtoimage.toJpeg(phone);
-          images.push(imgB64);
-          console.log(i, 'out', frames, parseInt((i * 100 / frames).toString()), '%');
+        setLoading(true);
+        setPlaying(true);
+
+
+        // DOM Elements
+        const preview = document.getElementById("preview")! //phone
+        const container = document.querySelector('[aria-label="conversation"]');
+        const list = [];
+        const images = [] as string[];
+
+        // Load Messages
+        for (const index in messages) {
+
+          // calculate percentage of progress
+          const percentage = parseInt((+index * 100.0 / messages.length).toString())
+          console.log('Loading', index, 'out of', messages.length);
+          setProgress(percentage);
+
+          const msg = { ...messages[index] };// a copy of the object
+
+          // scroll to the bottom
+          if (container) container.scrollTo(0, messages.length * 2000);
+
+          // wait for the message to appear
+          await waitFor(msg.delay || 2);
+
+          // add message to the list
+          msg.scale = 1;
+          msg.opacity = 0;
+          list.push(msg)
+          setTemplateMessages([...list]);
+
+          // animation
+          const seconds = 0.5;
+          const frames = 24;
+          const count = parseInt((seconds * frames).toString());
+          // Get the images for the video
+          for (let i = 0; i <= count; i++) {
+            const p = percentage + ((i * (100 / messages.length)) / count);
+            setProgress(p);
+            list[index].opacity = parseFloat(((i / count) * 1.00).toString());
+            setTemplateMessages([...list]);
+            const imgB64 = await domtoimage.toJpeg(preview);
+            images.push(imgB64);
+          }
+
+
+          // play audio
+          // if (!msg.me) audio.play();
+
+
+          // wait frames
+          const waiting = 3; // seconds
+          for (let i = 0; i <= waiting * frames; i++)  images.push(images[images.length - 1]);
+
+
+          // scroll to the bottom
+          if (container) container.scrollTo(0, messages.length * 2000);
+
         }
+
+        console.log('Done Collection Images');
+        await waitFor(2);
+
+        // scroll to the bottom
+        if (container) container.scrollTo(0, 0);
+
+
 
         // Execute FFMPeg command
         const ffmpeg = ffmpegRef.current;
@@ -272,6 +355,14 @@ function App() {
           const name = `${i < 10 ? `0${i}` : i}.jpeg`
           await ffmpeg.deleteFile(name);
         }
+
+        
+        //stop
+        setTemplateMessages([]);
+        setLoading(false)
+        setPlaying(false);
+        setProgress(99);
+        setProgress(0);
       }
 
       // Show done popup
@@ -303,17 +394,21 @@ function App() {
     if (!result) return;
 
 
+
     // Loading States
     setPlaying(true);
     setLoading(true);
 
+
     // DOM Elements
     const container = document.querySelector('[aria-label="conversation"]');
-    const audio = new Audio(whatsappAudio);
     const list = [];
 
+
     // Load Messages
-    for (const msg of messages) {
+    for (const index in messages) {
+
+      const msg = { ...messages[index] };// a copy of the object
 
       // scroll to the bottom
       if (container) container.scrollTo(0, messages.length * 2000);
@@ -322,16 +417,32 @@ function App() {
       await waitFor(msg.delay || 2);
 
       // add message to the list
+      msg.scale = 1;
+      msg.opacity = 0;
       list.push(msg)
       setTemplateMessages([...list]);
 
+      // animation
+      const seconds = 1;
+      const frames = 30;
+      const count = seconds * frames;
+      for (let i = 0; i <= count; i++) {
+        list[index].opacity = parseFloat(((i / count) * 1.00).toString());
+        setTemplateMessages([...list]);
+      }
+
+
       // play audio
       if (!msg.me) audio.play();
+
 
       // scroll to the bottom
       if (container) container.scrollTo(0, messages.length * 2000);
 
     }
+
+
+    await waitFor(2);
 
     // scroll to the bottom
     if (container) container.scrollTo(0, 0);
@@ -342,7 +453,7 @@ function App() {
 
 
     // display toastify notification
-    toast('Done preview');
+    toast('Done Preview');
 
   }
 
@@ -370,23 +481,23 @@ function App() {
 
           <div className="flex gap-3">
             {people.map((person, index) =>
-              <div onClick={() => setIndexPerson(index)} style={{ backgroundColor: index == indexPerson ? "#f59e0b" : "#f8fafc" }} key={index} className="w-16 rounded-full bg-amber-500 p-1 cursor-pointer hover:bg-slate-400 duration-200 shadow hover:shadow-2xl hover:shadow-amber-500">
+              <button disabled={loading} onClick={() => setIndexPerson(index)} style={{ backgroundColor: index == indexPerson ? "#f59e0b" : "#f8fafc" }} key={index} className="w-16 rounded-full bg-amber-500 p-1 cursor-pointer hover:bg-slate-400 duration-200 shadow hover:shadow-2xl hover:shadow-amber-500">
                 <img title={person.name} src={person.image} alt={person.name} className="rounded-full" />
-              </div>
+              </button>
             )}
-            <div onClick={() => setIndexPerson(-1)} style={{ backgroundColor: indexPerson == -1 ? "#f59e0b" : "#f8fafc" }} className="w-16 rounded-full text-amber-900 bg-slate-50 p-1 cursor-pointer hover:bg-purple-600 duration-200 flex justify-center items-center shadow hover:shadow-2xl hover:shadow-purple-100 hover:text-white">
+            <button disabled={loading} onClick={() => setIndexPerson(-1)} style={{ backgroundColor: indexPerson == -1 ? "#f59e0b" : "#f8fafc" }} className="w-16 rounded-full text-amber-900 bg-slate-50 p-1 cursor-pointer hover:bg-purple-600 duration-200 flex justify-center items-center shadow hover:shadow-2xl hover:shadow-purple-100 hover:text-white">
               <span>You</span>
-            </div>
-            <div className="w-16 rounded-full text-amber-900 bg-slate-50 p-1 cursor-pointer hover:bg-purple-600 duration-200 flex justify-center items-center shadow hover:shadow-2xl hover:shadow-purple-100 hover:text-white">
+            </button>
+            <button disabled={loading} className="w-16 rounded-full text-amber-900 bg-slate-50 p-1 cursor-pointer hover:bg-purple-600 duration-200 flex justify-center items-center shadow hover:shadow-2xl hover:shadow-purple-100 hover:text-white">
               <BsPersonAdd size={50} title="Add Person" className="rounded-full" />
-            </div>
+            </button>
           </div>
 
           <form onSubmit={onAddMessage} className="flex w-2/3 gap-3 justify-center items-center bg-slate-200  text-slate-600 px-4 py-2 rounded-full shadow-2xl hover:shadow-amber-600 duration-300">
             <IoMdHappy title="Emoji" size={30} />
             <FaClock title="When" size={30} />
-            <input className='border-2 h-10 border-blue-200 w-full outline-none font-thin text-gray-600 rounded-full px-5 focus:border-gray-600' value={text} onChange={e => setText(e.target.value)} placeholder='Message' />
-            <button type="submit" className='shadow-md bg-blue-600 rounded-full flex justify-center items-center text-white hover:bg-blue-950 duration-200 cursor-pointer' style={{ width: 60, height: 40 }}>
+            <input disabled={loading} className='border-2 h-10 border-blue-200 w-full outline-none font-thin text-gray-600 rounded-full px-5 focus:border-gray-600' value={text} onChange={e => setText(e.target.value)} placeholder='Message' />
+            <button disabled={loading} type="submit" className='shadow-md bg-blue-600 rounded-full flex justify-center items-center text-white hover:bg-blue-950 duration-200 cursor-pointer' style={{ width: 60, height: 40 }}>
               <IoSend />
             </button>
           </form>
@@ -431,7 +542,17 @@ function App() {
             </select>
           </div>
 
-          <button className="w-1/4 px-6 py-2 font-bold text-white bg-gradient-to-tr from-amber-400 to-amber-500 shadow-lg hover:shadow-2xl hover:shadow-amber-300 duration-200 cursor-pointer rounded-3xl" onClick={onExport}>Export</button>
+          <button disabled={loading} className="w-1/4 px-6 py-2 font-bold text-white bg-gradient-to-tr from-amber-400 to-amber-500 shadow-lg hover:shadow-2xl hover:shadow-amber-300 duration-200 cursor-pointer rounded-3xl" onClick={onExport}>{loading ? "Loading..." : "Export"}</button>
+
+
+          {/* Progress Bar */}
+          {progress <= 0 ? null :
+            <div className="flex-start flex h-1 w-full overflow-hidden rounded-full bg-gray-50 font-sans text-xs font-medium">
+              <div style={{ width: `${progress}%` }} className={`flex h-full w-[${progress}%] items-center justify-center overflow-hidden break-all rounded-full bg-amber-500 text-white`}></div>
+            </div>
+          }
+
+
 
         </section>
 
