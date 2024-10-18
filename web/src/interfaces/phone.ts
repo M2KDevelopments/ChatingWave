@@ -2,6 +2,7 @@ import { IMessage } from "./message";
 
 export interface IPhone {
 
+    id: string,
     // Phone Settings
     width: number,
     height: number,

@@ -8,7 +8,7 @@ import NetworkStatus from './NetworkStatus';
 function Phone(props: IPhone) {
 
     return (
-        <div id="preview" className='flex flex-col relative' style={{ width: props.width, height: props.height }}>
+        <div id={props.id} className='flex flex-col relative' style={{ width: props.width, height: props.height }}>
             <NetworkStatus {...props} />
             <AppBar {...props} />
             <Conversation {...props} />

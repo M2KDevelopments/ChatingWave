@@ -235,6 +235,18 @@ function App() {
     setText("")
   }
 
+  const onAddPerson = async () => {
+    const name = await swal({
+      title: `Add Person to Chat`,
+      text: `What is the name of the person?`,
+      icon: `info`,
+      content: { element: 'input' },
+      buttons: ['NO', 'YES']
+    });
+    if (!name) return;
+    setPeople([...people, { name, image: emily }]);
+  }
+
   const onExport = async () => {
     const phone = document.getElementById('phone')!;
     const a = document.createElement('a');
@@ -356,7 +368,7 @@ function App() {
           await ffmpeg.deleteFile(name);
         }
 
-        
+
         //stop
         setTemplateMessages([]);
         setLoading(false)
@@ -465,6 +477,7 @@ function App() {
         {/* Preview UI */}
         <section className="w-2/5 flex justify-center flex-col m-auto items-center align-middle p-4">
           <Phone
+            id="preview"
             name={people[currentPerson].name}
             image={people[currentPerson].image}
             width={size.width}
@@ -488,7 +501,7 @@ function App() {
             <button disabled={loading} onClick={() => setIndexPerson(-1)} style={{ backgroundColor: indexPerson == -1 ? "#f59e0b" : "#f8fafc" }} className="w-16 rounded-full text-amber-900 bg-slate-50 p-1 cursor-pointer hover:bg-purple-600 duration-200 flex justify-center items-center shadow hover:shadow-2xl hover:shadow-purple-100 hover:text-white">
               <span>You</span>
             </button>
-            <button disabled={loading} className="w-16 rounded-full text-amber-900 bg-slate-50 p-1 cursor-pointer hover:bg-purple-600 duration-200 flex justify-center items-center shadow hover:shadow-2xl hover:shadow-purple-100 hover:text-white">
+            <button disabled={loading} onClick={onAddPerson} className="w-16 rounded-full text-amber-900 bg-slate-50 p-1 cursor-pointer hover:bg-purple-600 duration-200 flex justify-center items-center shadow hover:shadow-2xl hover:shadow-purple-100 hover:text-white">
               <BsPersonAdd size={50} title="Add Person" className="rounded-full" />
             </button>
           </div>
@@ -559,8 +572,9 @@ function App() {
       </div>
 
       {/* Display Phone for Images and Videos */}
-      <div id="phone" className="fixed top-0 left-0 w-fit h-fit">
+      <div className="fixed top-0 left-0 w-fit h-fit">
         <Phone
+          id="phone"
           name="Emily Banks"
           width={parseInt(resolution)}
           height={resolutions.get(resolution)!}
