@@ -56,7 +56,8 @@ function App() {
   const waitFor = (seconds: number) => new Promise(resolve => setTimeout(resolve, seconds * 1000));
 
   // Message Settings
-  const [text, setText] = useState("");
+  const [messageText, setMessageText] = useState("");
+  const [messageImage, setMessageImage] = useState("")
 
   // Export Settings
   const [resolution, setResolution] = useState("720");
@@ -219,7 +220,7 @@ function App() {
   const onAddMessage = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (text.trim() == '') return;
+    if (messageText.trim() == '') return;
     const d = new Date();
     const hours = d.getHours() < 10 ? `0${d.getHours()}` : d.getHours()
     const mins = d.getMinutes() < 10 ? `0${d.getMinutes()}` : d.getMinutes();
@@ -228,15 +229,16 @@ function App() {
       id: crypto.randomUUID(),
       me: indexPerson == -1,
       reactions: [],
-      text: text,
+      text: messageText,
       time: time,
+      image: messageImage,
       name: indexPerson == -1 ? "Me" : people[indexPerson].name,
       read: true,
       scale: 1,
       opacity: 1,
-    }
+    } as IMessage;
     setMessages([...messages, message]);
-    setText("")
+    setMessageText("")
   }
 
   const onAddPerson = async () => {
@@ -543,10 +545,12 @@ function App() {
             </button>
           </div>
 
+          <input disabled={loading} className='border-2 h-10 border-blue-200 w-full outline-none font-thin text-gray-600 rounded-full px-5 focus:border-gray-600' value={messageImage} onChange={e => setMessageImage(e.target.value)} placeholder='Image URL' />
+
           <form onSubmit={onAddMessage} className="flex w-2/3 gap-3 justify-center items-center bg-slate-200  text-slate-600 px-4 py-2 rounded-full shadow-2xl hover:shadow-amber-600 duration-300">
             <IoMdHappy title="Emoji" size={30} />
             <FaClock title="When" size={30} />
-            <input disabled={loading} className='border-2 h-10 border-blue-200 w-full outline-none font-thin text-gray-600 rounded-full px-5 focus:border-gray-600' value={text} onChange={e => setText(e.target.value)} placeholder='Message' />
+            <input disabled={loading} className='border-2 h-10 border-blue-200 w-full outline-none font-thin text-gray-600 rounded-full px-5 focus:border-gray-600' value={messageText} onChange={e => setMessageText(e.target.value)} placeholder='Message' />
             <button disabled={loading} type="submit" className='shadow-md bg-blue-600 rounded-full flex justify-center items-center text-white hover:bg-blue-950 duration-200 cursor-pointer' style={{ width: 60, height: 40 }}>
               <IoSend />
             </button>
