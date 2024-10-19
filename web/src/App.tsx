@@ -305,10 +305,8 @@ function App() {
         let scrolling = 0;
 
         // animation
-        const seconds = 0.5;
-        const frames = 30;
-        const count = parseInt((seconds * frames).toString());
-
+        const FRAMES = 30;
+       
         // height of all the message before the are remove from const 
         const messageHeights = messages.map((msg) => document.getElementById(`msg-phone-${msg.id}`)!.getBoundingClientRect());
 
@@ -333,21 +331,6 @@ function App() {
           setTemplateMessages([...list]);
 
 
-          // Get the images for the video
-          for (let i = 0; i <= count; i++) {
-            const p = percentage + ((i * (100 / messages.length)) / count);
-            setProgress(p);
-            list[index].opacity = parseFloat(((i / count) * 1.00).toString());
-            setTemplateMessages([...list]);
-            const imgB64 = await domtoimage.toJpeg(phone);
-            images.push(imgB64);
-          }
-
-          // wait frames
-          const waiting = 3; // seconds
-          for (let i = 0; i <= waiting * frames; i++)  images.push(images[images.length - 1]);
-
-
           // simulate scroll to the bottom
           // Get bottom of container and bottom of last message
           // message under the container
@@ -361,6 +344,26 @@ function App() {
             scrolling -= (y2 - y1) + padding;
             setPhoneScrollY(scrolling)
           }
+
+
+          // Get the images for the video
+          const seconds = 0.3;
+          const count = parseInt((seconds * FRAMES).toString());  
+          for (let i = 0; i <= count; i++) {
+            const p = percentage + ((i * (100 / messages.length)) / count);
+            setProgress(p);
+            list[index].opacity = parseFloat(((i / count) * 1.00).toString());
+            setTemplateMessages([...list]);
+            const imgB64 = await domtoimage.toJpeg(phone);
+            images.push(imgB64);
+          }
+
+          // wait frames
+          const waiting = 3; // seconds
+          for (let i = 0; i <= waiting * FRAMES; i++)  images.push(images[images.length - 1]);
+
+
+
 
         }
 
@@ -378,7 +381,7 @@ function App() {
         }
 
         // await ffmpeg.writeFile('input.avi', await fetchFile('https://raw.githubusercontent.com/ffmpegwasm/testdata/master/video-15s.avi'));
-        const command = `-r ${frames} -i %2d.jpeg -pix_fmt yuv420p output.mp4`.split(' ');
+        const command = `-r ${FRAMES} -i %2d.jpeg -pix_fmt yuv420p output.mp4`.split(' ');
         await ffmpeg.exec(command);
 
 
