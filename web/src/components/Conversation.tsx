@@ -22,7 +22,7 @@ function Conversation(props: IPhone) {
 
     if (props.platform == 'whatsapp') {
         return (
-            <div aria-label="conversation" className='w-full overflow-y-scroll flex flex-col gap-2 p-3' style={{ height: props.height * heightPercentage, backgroundColor: props.lightmode ? "#efeae2" : "#494847", backgroundImage: `url('${bgWA}')` }}>
+            <div id={`conversation-${props.id}`} aria-label="conversation" className='w-full flex flex-col gap-2 p-3' style={{ overflowY: props.noScrollBar ? "hidden" : "scroll", height: props.height * heightPercentage, backgroundColor: props.lightmode ? "#efeae2" : "#494847", backgroundImage: `url('${bgWA}')` }}>
                 {
                     props.messages.map((msg, index) =>
                         <div
@@ -32,10 +32,10 @@ function Conversation(props: IPhone) {
                                 alignSelf: msg.me ? "end" : "auto", marginBottom: msg.reactions.length ? 22 : 0,
                                 opacity: msg.opacity,
                                 scale: msg.scale,
+                                top: props.scrollY,
                             }}
-
                             className='relative text-gray-900 max-w-[80%] rounded-lg shadow-lg flex flex-col p-2'
-                            id={'msg' + msg.id}
+                            id={`msg-${props.id}-${msg.id}`} // msg-preview-{id} or msg-phone-{id}
                             key={msg.id + index}>
 
                             {/* Reply UI */}

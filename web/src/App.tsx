@@ -38,6 +38,8 @@ function App() {
   const [ffmpegLoaded, setFFmpegLoaded] = useState(false);
 
   // Phone Settings
+  const [previewScrollY, setPreviewScrollY] = useState(0);
+  const [phoneScrollY, setPhoneScrollY] = useState(0);
   const [lightmode, setLightMode] = useState(true);
   const [online, setOnline] = useState(true);
   const [platform, setPlatform] = useState("whatsapp");
@@ -249,42 +251,64 @@ function App() {
 
   const onExport = async () => {
     const phone = document.getElementById('phone')!;
+    const container = document.getElementById(`conversation-phone`)!;
+    const previewContainer = document.getElementById('conversation-preview')!;
+    const phoneScroll = previewContainer.scrollTop * container.getBoundingClientRect().height / previewContainer.getBoundingClientRect().height;
+
+    // link for image downloads
     const a = document.createElement('a');
 
     try {
       setLoading(true)
       if (exportType == 'png') {
+        setPhoneScrollY(-phoneScroll);
         const img = await domtoimage.toPng(phone);
         a.href = img;
         a.download = 'Chating Wave.png';
         a.click();
         a.remove();
+        setPhoneScrollY(0);
       } else if (exportType == 'jpeg') {
+        setPhoneScrollY(-phoneScroll);
         const img = await domtoimage.toJpeg(phone);
         a.href = img;
         a.download = 'Chating Wave.jpg';
         a.click();
         a.remove();
+        setPhoneScrollY(0);
       } else if (exportType == 'svg') {
+        setPhoneScrollY(-phoneScroll);
         const img = await domtoimage.toSvg(phone);
         a.href = img;
         a.download = 'Chating Wave.svg';
         a.click();
         a.remove();
+        setPhoneScrollY(0);
       } else if (exportType == 'video') {
 
+        container.scrollTo(0, 0);
+        setPhoneScrollY(0);
 
         setLoading(true);
         setPlaying(true);
 
 
         // DOM Elements
-        const preview = document.getElementById("preview")! //phone
-        const container = document.querySelector('[aria-label="conversation"]');
         const list = [];
         const images = [] as string[];
 
         // Load Messages
+        let scrolling = 0;
+
+        // animation
+        const seconds = 0.5;
+        const frames = 30;
+        const count = parseInt((seconds * frames).toString());
+
+        // height of all the message before the are remove from const 
+        const messageHeights = messages.map((msg) => document.getElementById(`msg-phone-${msg.id}`)!.getBoundingClientRect());
+
+
         for (const index in messages) {
 
           // calculate percentage of progress
@@ -294,8 +318,6 @@ function App() {
 
           const msg = { ...messages[index] };// a copy of the object
 
-          // scroll to the bottom
-          if (container) container.scrollTo(0, messages.length * 2000);
 
           // wait for the message to appear
           await waitFor(msg.delay || 2);
@@ -306,41 +328,40 @@ function App() {
           list.push(msg)
           setTemplateMessages([...list]);
 
-          // animation
-          const seconds = 0.5;
-          const frames = 24;
-          const count = parseInt((seconds * frames).toString());
+
           // Get the images for the video
           for (let i = 0; i <= count; i++) {
             const p = percentage + ((i * (100 / messages.length)) / count);
             setProgress(p);
             list[index].opacity = parseFloat(((i / count) * 1.00).toString());
             setTemplateMessages([...list]);
-            const imgB64 = await domtoimage.toJpeg(preview);
+            const imgB64 = await domtoimage.toJpeg(phone);
             images.push(imgB64);
           }
-
-
-          // play audio
-          // if (!msg.me) audio.play();
-
 
           // wait frames
           const waiting = 3; // seconds
           for (let i = 0; i <= waiting * frames; i++)  images.push(images[images.length - 1]);
 
 
-          // scroll to the bottom
-          if (container) container.scrollTo(0, messages.length * 2000);
+          // simulate scroll to the bottom
+          // Get bottom of container and bottom of last message
+          // message under the container
+          const y1 = container.getBoundingClientRect().bottom;
+          const y2 = messageHeights[index].bottom - (scrolling * -1);
+          if (y2 > y1) {
+            let padding = 30;
+            // if the next is a new message
+            if ((+index < (messages.length - 1)) && (messages[+index + 1].me)) padding = 40;
+
+            scrolling -= (y2 - y1) + padding;
+            setPhoneScrollY(scrolling)
+          }
 
         }
 
         console.log('Done Collection Images');
         await waitFor(2);
-
-        // scroll to the bottom
-        if (container) container.scrollTo(0, 0);
-
 
 
         // Execute FFMPeg command
@@ -353,7 +374,7 @@ function App() {
         }
 
         // await ffmpeg.writeFile('input.avi', await fetchFile('https://raw.githubusercontent.com/ffmpegwasm/testdata/master/video-15s.avi'));
-        const command = `-r 30 -i %2d.jpeg -pix_fmt yuv420p output.mp4`.split(' ');
+        const command = `-r ${frames} -i %2d.jpeg -pix_fmt yuv420p output.mp4`.split(' ');
         await ffmpeg.exec(command);
 
 
@@ -367,6 +388,7 @@ function App() {
           const name = `${i < 10 ? `0${i}` : i}.jpeg`
           await ffmpeg.deleteFile(name);
         }
+        await ffmpeg.deleteFile('output.mp4');
 
 
         //stop
@@ -375,6 +397,7 @@ function App() {
         setPlaying(false);
         setProgress(99);
         setProgress(0);
+        setPhoneScrollY(0);
       }
 
       // Show done popup
@@ -384,13 +407,6 @@ function App() {
     } finally {
       setLoading(false)
     }
-  }
-
-
-  const onStop = () => {
-    setTemplateMessages([]);
-    setPlaying(false);
-    setLoading(false)
   }
 
   const onPreview = async () => {
@@ -413,52 +429,61 @@ function App() {
 
 
     // DOM Elements
-    const container = document.querySelector('[aria-label="conversation"]');
     const list = [];
 
 
+    // scroll
+    let scrolling = 0;
+
     // Load Messages
+    const container = document.getElementById(`conversation-preview`)!;
+    container.scrollTo(0, 0);
+    setPreviewScrollY(0);
+
+    // height of all the message before the are remove from const 
+    const messageHeights = messages.map((msg) => document.getElementById(`msg-preview-${msg.id}`)!.getBoundingClientRect());
+
+
     for (const index in messages) {
 
       const msg = { ...messages[index] };// a copy of the object
 
-      // scroll to the bottom
-      if (container) container.scrollTo(0, messages.length * 2000);
 
       // wait for the message to appear
       await waitFor(msg.delay || 2);
 
       // add message to the list
       msg.scale = 1;
-      msg.opacity = 0;
+      msg.opacity = 1;
       list.push(msg)
       setTemplateMessages([...list]);
-
-      // animation
-      const seconds = 1;
-      const frames = 30;
-      const count = seconds * frames;
-      for (let i = 0; i <= count; i++) {
-        list[index].opacity = parseFloat(((i / count) * 1.00).toString());
-        setTemplateMessages([...list]);
-      }
-
 
       // play audio
       if (!msg.me) audio.play();
 
+      // simulate scroll to the bottom
+      // Get bottom of container and bottom of last message
+      // message under the container
+      const y1 = container.getBoundingClientRect().bottom;
+      const y2 = messageHeights[index].bottom - (scrolling * -1);
+      console.log(`msg-preview-${msg.id}`, y2, y1);
+      if (y2 > y1) {
+        let padding = 30;
+        // if the next is a new message
+        if ((+index < (messages.length - 1)) && (messages[+index + 1].me)) padding = 40;
 
-      // scroll to the bottom
-      if (container) container.scrollTo(0, messages.length * 2000);
+        scrolling -= (y2 - y1) + padding;
+        setPreviewScrollY(scrolling)
+      }
 
     }
 
 
-    await waitFor(2);
+    await waitFor(3); //seconds
 
     // scroll to the bottom
-    if (container) container.scrollTo(0, 0);
-
+    setPreviewScrollY(0);
+    container.scrollTo(0, 0);
 
     // stop animation
     onStop();
@@ -468,6 +493,14 @@ function App() {
     toast('Done Preview');
 
   }
+
+
+  const onStop = () => {
+    setTemplateMessages([]);
+    setPlaying(false);
+    setLoading(false)
+  }
+
 
   return (
     <main className="overflow-hidden">
@@ -486,6 +519,8 @@ function App() {
             lightmode={lightmode}
             messages={playing ? templateMessages : messages}
             online={online}
+            scrollY={previewScrollY}
+            noScrollBar={playing}
           />
         </section>
 
@@ -580,8 +615,10 @@ function App() {
           height={resolutions.get(resolution)!}
           platform="whatsapp"
           lightmode={true}
-          messages={messages}
+          messages={playing ? templateMessages : messages}
           online={true}
+          scrollY={phoneScrollY}
+          noScrollBar={true}
         />
       </div>
 

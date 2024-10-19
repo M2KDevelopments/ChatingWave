@@ -2,6 +2,7 @@ import { IMessage } from "./message";
 
 export interface IPhone {
 
+
     id: string,
     // Phone Settings
     width: number,
@@ -21,4 +22,7 @@ export interface IPhone {
     image?: string,
     online?: true | boolean,
 
+    // scrolling
+    scrollY: number,
+    noScrollBar: boolean,
 }
