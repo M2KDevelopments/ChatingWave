@@ -18,13 +18,20 @@ const iconSizePercentage = 2 / 100;
 
 function NetworkStatus(props: IPhone) {
 
-    const [time, setTime] = useState(new Date().toLocaleTimeString())
+    const [time, setTime] = useState("12:00 PM")
     const fontSize = 23 * (props.height / 1280);
 
 
     // Count every second
     useEffect(() => {
-        const t = setInterval(() => setTime(new Date().toLocaleTimeString()), 1000);
+        const t = setInterval(() => {
+            const d = new Date();
+            const hours = d.getHours() < 10 ? `0${d.getHours()}` : d.getHours()
+            const mins = d.getMinutes() < 10 ? `0${d.getMinutes()}` : d.getMinutes();
+            const amOrPM = new Date().toLocaleTimeString().split(" ")[1]
+            const time = `${hours}:${mins} ${amOrPM}`;
+            setTime(time);
+        }, 1000);
         return () => clearInterval(t);
     }, []);
 

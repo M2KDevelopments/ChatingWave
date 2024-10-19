@@ -220,14 +220,16 @@ function App() {
     e.preventDefault();
 
     if (text.trim() == '') return;
-
-
+    const d = new Date();
+    const hours = d.getHours() < 10 ? `0${d.getHours()}` : d.getHours()
+    const mins = d.getMinutes() < 10 ? `0${d.getMinutes()}` : d.getMinutes();
+    const time = `${hours}:${mins}`;
     const message = {
       id: crypto.randomUUID(),
       me: indexPerson == -1,
       reactions: [],
       text: text,
-      time: new Date().toLocaleTimeString(),
+      time: time,
       name: indexPerson == -1 ? "Me" : people[indexPerson].name,
       read: true,
       scale: 1,
