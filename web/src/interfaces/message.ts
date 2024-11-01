@@ -11,4 +11,5 @@ export interface IMessage {
     delay?: number,//in seconds
     opacity: number,//in seconds
     scale: number,//in seconds
+    profileImage: string,
 }

@@ -7,7 +7,7 @@ export interface IPhone {
     // Phone Settings
     width: number,
     height: number,
-    platform: "whatsapp" | "facebook" | "twitter" | "instagram" | "tiktok" | string,
+    platform: "whatsapp" | "facebook" | "twitter" | "instagram" | "tiktok" | 'iphone' | string,
     lightmode?: true | boolean,
     messages: Array<IMessage>,
 
