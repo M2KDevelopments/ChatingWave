@@ -10,10 +10,10 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 // Settings Component RHS
-import Visuals from "./components/Settings/Visuals";
-import MessageStatus from "./components/Settings/MessageStatus";
-import Actions from "./components/Settings/Actions";
-import Exporting from "./components/Settings/Exporting";
+import AppTheme from "./components/Settings/AppTheme";
+import BarStatus from "./components/Settings/BarStatus";
+import MessageActions from "./components/Settings/MessageActions";
+import SaveMessages from "./components/Settings/SaveMessages";
 
 // Assets
 import { MESSAGES } from './assets/messages'
@@ -35,9 +35,9 @@ function App() {
   // Phone Settings
   const [chatName, setChatName] = useState("Emily Banks");
   const [chatImage, setChatImage] = useState(emily);
-  const [lightmode, setLightMode] = useState(true);
+  const [lightmode, setLightMode] = useState(false);
   const [online, setOnline] = useState(true);
-  const [platform, setPlatform] = useState("facebook");
+  const [platform, setPlatform] = useState("whatsapp");
   const [size, setSize] = useState({ width: 480, height: 854 });
 
   // Messages
@@ -57,11 +57,8 @@ function App() {
   useEffect(() => {
     //Defaults
     setResolution("720");
-    setLightMode(true);
     setOnline(true);
     setIndexPerson(0);
-    setChatName("Emily Banks");
-    setChatImage(emily);
     setPeople([{ name: "Emily Banks", image: emily }])
     setMessages(MESSAGES); // Set Messages Default
 
@@ -75,36 +72,38 @@ function App() {
     <main className="overflow-hidden">
 
 
-      <div className="flex w-screen h-screen overflow-hidden bg-slate-50 relative z-10">
+      <div style={{ background: lightmode ? "#e1e1e1" : "#111827" }} className="flex w-screen h-screen overflow-hidden relative z-10">
+
         {/* Preview UI */}
         <section className="w-2/5 flex justify-center flex-col m-auto items-center align-middle p-4">
-          <Phone
-            id="preview"
-            name={chatName}
-            image={chatImage}
-            width={size.width}
-            height={size.height}
-            platform={platform}
-            lightmode={lightmode}
-            messages={playing ? templateMessages : messages}
-            online={online}
-            scrollY={previewScrollY}
-            noScrollBar={playing}
-          />
+          <div className="shadow-2xl shadow-cyan-600">
+            <Phone
+              id="preview"
+              name={chatName}
+              image={chatImage}
+              width={size.width}
+              height={size.height}
+              platform={platform}
+              lightmode={lightmode}
+              messages={playing ? templateMessages : messages}
+              online={online}
+              scrollY={previewScrollY}
+              noScrollBar={playing}
+            />
+          </div>
         </section>
 
         {/* Settings */}
-        <section className="w-3/5 bg-gradient-to-tr from-gray-700 to-purple-900 flex flex-col gap-3 items-center">
+        <section style={{ background: lightmode ? "#e1e1e1" : "#111827" }} className="w-3/5 bg-gradient-to-tr flex flex-col gap-3 items-center mt-4">
 
-          <Visuals
-            platform={platform}
-            setPlatform={setPlatform}
+
+          <AppTheme
             lightmode={lightmode}
             setLightMode={setLightMode}
           />
 
-
-          <MessageStatus
+          <BarStatus
+            lightmode={lightmode}
             people={people}
             indexPerson={indexPerson}
             loading={loading}
@@ -114,18 +113,22 @@ function App() {
           />
 
 
-          <div className="h-full flex flex-col justify-center">
-            <Actions
-              indexPerson={indexPerson}
-              loading={loading}
-              messages={messages}
-              people={people}
-              setMessages={setMessages}
-            />
-          </div>
+          <MessageActions
+            lightmode={lightmode}
+            indexPerson={indexPerson}
+            loading={loading}
+            messages={messages}
+            people={people}
+            setMessages={setMessages}
+            chatName={chatName}
+            chatImage={chatImage}
+            setChatImage={setChatImage}
+            setChatName={setChatName}
+            platform={platform}
+            setPlatform={setPlatform}
+          />
 
-
-          <Exporting
+          <SaveMessages
             playing={playing}
             loading={loading}
             messages={messages}
@@ -150,7 +153,7 @@ function App() {
           width={parseInt(resolution)}
           height={resolutions.get(resolution)!}
           platform={platform}
-          lightmode={true}
+          lightmode={lightmode}
           messages={playing ? templateMessages : messages}
           online={true}
           scrollY={phoneScrollY}

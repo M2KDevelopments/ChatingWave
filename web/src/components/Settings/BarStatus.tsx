@@ -8,8 +8,9 @@ import swal from "sweetalert";
 
 
 const size = 10;
-const profileSize = 20;
+const profileSize = 30;
 interface IMessageStatus {
+    lightmode: boolean,
     people: Array<IPerson>,
     loading: boolean,
     messages: Array<IMessage>,
@@ -19,7 +20,7 @@ interface IMessageStatus {
 
 }
 
-function MessageStatus(props: IMessageStatus) {
+function BarStatus(props: IMessageStatus) {
 
 
     const data = useMemo(() => {
@@ -56,10 +57,10 @@ function MessageStatus(props: IMessageStatus) {
 
 
     return (
-        <div className='flex gap-3 w-full p-3 border-2 border-purple-100 rounded-l'>
+        <div style={{ borderColor: props.lightmode ? "#bfcbd3" : "#4b5563" }} className='flex gap-3 w-full p-3 border-2 rounded-l'>
             {/* Messages and Actions */}
             <div className='flex flex-col gap-2 w-3/5'>
-                <div className='flex gap-5 text-white'>
+                <div className='flex gap-5' style={{ color: props.lightmode ? "#334155" : "#f5f5f5" }}>
                     <span className='font-bold'>Actions</span>
                     <div className='flex gap-4'>
                         <div className='flex gap-2 items-center'>
@@ -102,4 +103,4 @@ function MessageStatus(props: IMessageStatus) {
     )
 }
 
-export default MessageStatus
+export default BarStatus

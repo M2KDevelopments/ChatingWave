@@ -17,7 +17,7 @@ function WhatsappAppBar(props: IPhone) {
 
 
     return (
-        <div className='w-full bg-gray-100 p-4 text-gray-900 flex gap-4 items-center' style={{ height: props.height * appBarSizePercentage }}>
+        <div className='w-full p-4 flex gap-4 items-center' style={{ color: props.lightmode ? "#111827" : "white", background: props.lightmode ? "#f3f4f6" : "#0b141b", height: props.height * appBarSizePercentage }}>
 
             {/* Back Button */}
             <div>

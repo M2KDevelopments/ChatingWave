@@ -37,7 +37,7 @@ function NetworkStatus(props: IPhone) {
 
 
     return (
-        <div className='w-full flex content-center bg-gray-100 p-4'>
+        <div style={{ color: props.lightmode ? "#111827" : "white", background: props.lightmode ? "#f3f4f6" : "#0b141b" }} className='w-full flex content-center py-2 px-4'>
             <p style={{ fontSize }} className='w-1/2 text-start'>{props.time || time}</p>
             <div className='w-1/2 flex gap-3 justify-end content-center'>
 

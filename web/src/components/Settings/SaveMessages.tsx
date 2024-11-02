@@ -26,7 +26,7 @@ interface IExport {
 
 }
 
-function Exporting(props: IExport) {
+function SaveMessages(props: IExport) {
 
     const [progress, setProgress] = useState(0);
     const [ffmpegLoaded, setFFmpegLoaded] = useState(false);
@@ -320,11 +320,11 @@ function Exporting(props: IExport) {
 
             <div className='flex w-full'>
                 {props.playing ?
-                    <button className="flex content-center items-center align-middle text-center justify-center gap-4 w-2/4 px-6 py-2 font-bold text-white text-3xl bg-gradient-to-tr from-red-400 to-red-500 shadow-2xl shadow-red-400 hover:shadow-3xl hover:shadow-white duration-200 cursor-pointer rounded-full" onClick={onStop}>
+                    <button className="rounded-s-md flex content-center items-center align-middle text-center justify-center gap-4 w-2/4 px-6 py-2 font-bold text-white text-3xl bg-gradient-to-tr from-red-400 to-red-500 shadow-2xl shadow-red-400 hover:shadow-3xl hover:shadow-white duration-200 cursor-pointer" onClick={onStop}>
                         <span>Stop</span>
                         <FaStop />
                     </button> :
-                    <button className="flex content-center items-center align-middle text-center justify-center gap-4 w-2/4 px-6 py-2 font-bold text-white text-3xl bg-gradient-to-tr from-blue-400 to-blue-500 shadow-2xl shadow-blue-400 hover:shadow-3xl hover:shadow-blue-300 duration-200 cursor-pointer" disabled={props.loading} onClick={onPreview}>
+                    <button className="rounded-s-md flex content-center items-center align-middle text-center justify-center gap-4 w-2/4 px-6 py-2 font-bold text-white text-3xl bg-gradient-to-tr from-blue-400 to-blue-500 shadow-2xl shadow-blue-400 hover:shadow-3xl hover:shadow-blue-300 duration-200 cursor-pointer" disabled={props.loading} onClick={onPreview}>
                         <span>Preview</span>
                         <FaPlay />
                     </button>
@@ -335,7 +335,7 @@ function Exporting(props: IExport) {
                     <FaImage />
                 </button>
 
-                <button disabled={props.loading} className="flex content-center items-center align-middle text-center justify-center gap-4 w-2/4 px-6 py-2 font-bold text-white text-3xl bg-gradient-to-tr from-amber-400 to-amber-500 shadow-2xl shadow-amber-400 hover:shadow-3xl hover:shadow-white duration-200 cursor-pointer" onClick={onExport}>
+                <button disabled={props.loading} className="rounded-e-md flex content-center items-center align-middle text-center justify-center gap-4 w-2/4 px-6 py-2 font-bold text-white text-3xl bg-gradient-to-tr from-amber-400 to-amber-500 shadow-2xl shadow-amber-400 hover:shadow-3xl hover:shadow-white duration-200 cursor-pointer" onClick={onExport}>
                     <span>{props.loading || ffmpegLoaded ? "Loading..." : "Video"}</span>
                     <FaVideo />
                 </button>
@@ -353,4 +353,4 @@ function Exporting(props: IExport) {
     )
 }
 
-export default Exporting
+export default SaveMessages
