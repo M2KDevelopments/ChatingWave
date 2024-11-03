@@ -15,7 +15,13 @@ import { FaSquareWhatsapp } from "react-icons/fa6";
 // import { AiFillTikTok } from "react-icons/ai";
 import emily from '../../assets/emily.jpg';
 import IMAGES from '../../assets/images.json';
-
+import { toast } from 'react-toastify'
+import EmojiData from '@emoji-mart/data'
+import Picker from '@emoji-mart/react'
+import { MdBlock } from 'react-icons/md'
+import { FaCloudDownloadAlt } from 'react-icons/fa'
+import JSZip from 'jszip';
+const zip = new JSZip();
 const size = 20;
 
 
@@ -34,6 +40,15 @@ interface IAction {
     setPlatform: (p: string) => void,
 }
 
+interface Emoji {
+    id: string,
+    keywords: [string],
+    name: string,
+    native: string,
+    shortcodes: string,
+    unified: string
+}
+
 
 function MessageActions(props: IAction) {
 
@@ -41,6 +56,18 @@ function MessageActions(props: IAction) {
     const [messageText, setMessageText] = useState("");
     const [messageImage, setMessageImage] = useState("");
     const [messageTime, setMessageTime] = useState("12:00");
+    const [dialog, setDialog] = useState(false);
+    const [dialogEmoji, setDialogEmoji] = useState(false);
+    const [dialogEmojiReact, setDialogEmojiReact] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [editMessage, setEditMessage] = useState({} as IMessage);
+
+    const onUpdateMessage = () => {
+        const index = props.messages.findIndex(m => m.id == editMessage.id);
+        props.messages[index].text = editMessage.text;
+        props.setMessages([...props.messages]);
+        setEditMessage({} as IMessage);
+    }
 
     useEffect(() => {
         const d = new Date();
@@ -73,25 +100,174 @@ function MessageActions(props: IAction) {
         } as IMessage;
         props.setMessages([...props.messages, message]);
         setMessageText("")
+        setMessageImage("");
     }
 
 
-    const onFileLoad = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const onGetImage = async () => {
+        if (messageImage) {
+            const result = await swal({
+                title: 'Remove Image',
+                text: 'Are you sure you want to remove image',
+                icon: 'info',
+                buttons: ['No', 'Yes'],
+            });
+            if (!result) return;
+            setMessageImage("");
+        } else document.getElementById('image')?.click();
+    }
+    const onImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+
+
         if (e.target.files && e.target.files?.length) {
             const file = e.target.files[0];
-            const url = URL.createObjectURL(file);
-            setMessageImage(url);
+            if (file.type.includes("image")) {
+                const url = URL.createObjectURL(file);
+                setMessageImage(url);
+            } else {
+                toast.error('Please upload an image');
+            }
         }
 
     }
 
+    const onUploadChatImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+        console.log(e.target.files);
+        if (e.target.files && e.target.files?.length) {
+            const file = e.target.files[0];
+            if (file.type.includes("image")) {
+                const url = URL.createObjectURL(file);
+                props.setChatImage(url);
+            } else {
+                toast.error('Please upload an image');
+            }
+        }
+    }
+
+    const onEmojiSelect = (emojiData: Emoji) => {
+        const emoji = emojiData.native;
+        setMessageText(`${messageText} ${emoji}`);
+    }
+
+    const onEmojiSelectReact = (emojiData: Emoji) => {
+        const emoji = emojiData.native;
+        const messageId = dialogEmojiReact;
+        const index = props.messages.findIndex(msg => msg.id == messageId);
+        props.messages[index].reactions.push(emoji);
+        props.setMessages([...props.messages]);
+        toast.success(`Reacted to message with ${emoji}`);
+    }
+
+
+    const onClear = async () => {
+        const result = await swal({
+            title: 'Clear Chat',
+            text: `Are you sure you want to clear this chat?`,
+            icon: 'info',
+            buttons: ['No', 'Yes']
+        });
+        if (!result) return;
+        props.setMessages([]);
+    }
+
+    const onDownloadChat = async () => {
+
+
+        if (loading) return;
+
+        const name = await swal({
+            title: 'Download Chat',
+            text: `Enter the name of this chat?`,
+            icon: 'info',
+            content: { element: 'input' },
+            buttons: ['No', 'Yes']
+        });
+        if (!name) return;
+
+
+        setLoading(true);
+
+        function loadImage(url: string): Promise<HTMLImageElement> {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => resolve(img);
+                img.crossOrigin = "anonymous";
+                img.src = url;
+            });
+        }
+        function getBase64Image(img: HTMLImageElement) {
+            const canvas = document.createElement("canvas");
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext("2d");
+            ctx?.drawImage(img, 0, 0);
+            const dataURL = canvas.toDataURL("image/png");
+            return dataURL?.replace(/^data:image\/?[A-z]*;base64,/, '');
+        }
+
+        // load images
+        const images = zip.folder("images");
+        for (const message of props.messages) {
+            if (message.image) {
+                const img = await loadImage(message.image);
+                const base64 = getBase64Image(img);
+                images?.file(`${message.id}.png`, base64, { base64: true });
+            }
+        }
+        const profiles = zip.folder("profiles");
+        for (const message of props.messages) {
+            if (message.profileImage) {
+                const img = await loadImage(message.profileImage);
+                const base64 = getBase64Image(img);
+                profiles?.file(`${message.id}.png`, base64, { base64: true });
+            }
+        }
+
+        const chatimg = await loadImage(props.chatImage);
+        const chatbase64 = getBase64Image(chatimg);
+        zip?.file(`chatimage.png`, chatbase64, { base64: true });
+        zip.file('chat.json', JSON.stringify({
+            chatName: props.chatName,
+            people: props.people.map(person => {
+                return { name: person.name }
+            }),
+            messages: JSON.stringify(props.messages.map(msg => {
+                return { ...msg, image: "", profileImage: "" }
+            }))
+        }));
+
+        const content = await zip.generateAsync({ type: "blob" });
+
+        // Download Chat File
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(content);
+        a.download = `${name}.chat`;
+        a.click();
+        a.remove();
+
+        setLoading(false);
+        toast.success('Downloaded Chat File')
+    }
+
+    // const onUploadChat = () => {
+
+    // }
 
     return (
         <div style={{ borderColor: props.lightmode ? "#bfcbd3" : "#4b5563" }} className='w-full p-2 border-2 rounded-md flex flex-col'>
 
             <div className='flex gap-3 hover:bg-gray-400 duration-300  items-center p-3 relative'>
-                <img src={props.chatImage} className='w-12 h-12 rounded-full cursor-pointer' onClick={() => (document.getElementById('dialog-chatimage') as HTMLDialogElement).show()} />
-                <input maxLength={20} disabled={props.loading} className='border-2 h-10 border-blue-200 w-full outline-none font-thin text-gray-600 rounded-full px-5 focus:border-gray-600' value={props.chatName} onChange={e => props.setChatName(e.target.value)} placeholder='Chat Name' />
+                <img src={props.chatImage} className='w-12 h-12 rounded-full cursor-pointer' onClick={() => setDialog(true)} />
+                <input maxLength={20} disabled={props.loading || loading} className='border-2 h-10 border-blue-200 w-32 outline-none font-thin text-gray-600 rounded-full px-2 focus:border-gray-600' value={props.chatName} onChange={e => props.setChatName(e.target.value)} placeholder='Chat Name' />
+                <button disabled={props.loading || loading} onClick={onClear} title="Clear Chat" style={{ color: props.lightmode ? "#b91c1c" : "white" }} className=''>
+                    <MdBlock size={28} />
+                </button>
+                <button disabled={props.loading || loading} onClick={onDownloadChat} title="Download Chat" style={{ color: props.lightmode ? "#be185d" : "white" }} className=''>
+                    <FaCloudDownloadAlt size={28} />
+                </button>
+                {/* <button onClick={onUploadChat} title="Upload Chat" style={{ color: props.lightmode ? "#be185d" : "white" }} className=''>
+                    <FaCloudUploadAlt size={28} />
+                </button> */}
                 <div className='w-full'></div>
                 <div className='flex gap-5 justify-end'>
 
@@ -118,7 +294,7 @@ function MessageActions(props: IAction) {
             </div>
 
             {
-                props.messages.reverse().length > 0 ?
+                props.messages.length > 0 ?
                     <div
                         style={{
                             background: props.lightmode ? "#d9d8d8" : "#1a2439",
@@ -126,14 +302,16 @@ function MessageActions(props: IAction) {
                         className='flex flex-col gap-2 h-[45vh] p-2 overflow-y-scroll rounded-lg'>
                         {props.messages.map((message, index) =>
                             props.lightmode ?
-                                <div key={'act' + index} className='flex gap-3 hover:bg-slate-400 duration-300 items-center p-3 relative'>
+                                <div onDoubleClick={() => setEditMessage(message)} key={'act' + index} className='cursor-pointer flex gap-3 hover:bg-slate-400 duration-300 items-center p-3 relative'>
                                     <img src={message.profileImage} className='w-8 h-8 rounded-full' />
                                     <span className='w-full text-wrap text-ellipsis text-slate-900'>{message.text}</span>
+                                    <span onClick={() => setDialogEmojiReact(message.id)} className='absolute right-14 bottom-2 text-slate-900 font-thin'><IoMdHappy color={message.reactions.length ? " #f59e0b" : undefined} title="React to Message" size={20} /></span>
                                     <span className='absolute right-2 bottom-2 text-slate-900 font-thin'>{message.time}</span>
                                 </div> :
-                                <div key={'act' + index} className='flex gap-3 hover:bg-cyan-950 duration-300 items-center p-3 relative'>
+                                <div onDoubleClick={() => setEditMessage(message)} key={'act' + index} className='cursor-pointer flex gap-3 hover:bg-cyan-950 duration-300 items-center p-3 relative'>
                                     <img src={message.profileImage} className='w-8 h-8 rounded-full' />
                                     <span className='w-full text-wrap text-ellipsis text-white'>{message.text}</span>
+                                    <span onClick={() => setDialogEmojiReact(message.id)} className='absolute right-14 bottom-2 text-white font-thin'><IoMdHappy color={message.reactions.length ? " #f59e0b" : undefined} title="React to Message" size={20} /></span>
                                     <span className='absolute right-2 bottom-2 text-white font-thin'>{message.time}</span>
                                 </div>
                         )}
@@ -149,7 +327,7 @@ function MessageActions(props: IAction) {
             }
 
 
-            <input id="image" onChange={onFileLoad} disabled={props.loading} type="file" accept='image/*' className='invisible border-2 h-10 border-blue-200 w-full outline-none font-thin text-gray-600 rounded-full px-5 focus:border-gray-600' value={messageImage} placeholder='Image URL' />
+            <input id="image" onChange={onImageUpload} disabled={props.loading} type="file" accept='image/*' className='invisible border-2 h-10 border-blue-200 w-full outline-none font-thin text-gray-600 rounded-full px-5 focus:border-gray-600' placeholder='Image URL' />
 
             <form
                 style={{
@@ -157,17 +335,17 @@ function MessageActions(props: IAction) {
                     color: props.lightmode ? "white" : "#475569",
                 }}
                 onSubmit={onAddMessage} className="flex w-full gap-3 justify-center items-center px-4 py-2 rounded-md shadow-sm hover:shadow-blue-100 duration-300">
-                <div className='cursor-pointer hover:text-amber-800 duration-300'>
+                <div onClick={() => setDialogEmoji(true)} className='cursor-pointer hover:text-amber-800 duration-300'>
                     <IoMdHappy title="Emoji" size={30} />
                 </div>
                 {/* <div className='cursor-pointer hover:text-blue-800 duration-300'>
                     <FaMicrophoneLines title="Add Audio" size={30} />
                 </div>
                 <div className='cursor-pointer hover:text-blue-800 duration-300'>
-                    <MdRecordVoiceOver title="Dub message" size={30} />
+                <MdRecordVoiceOver title="Dub message" size={30} />
                 </div> */}
-                <div className='cursor-pointer hover:text-pink-800 duration-300' onClick={() => document.getElementById('image')?.click()}>
-                    <FaImage color={messageImage ? "pink" : undefined} title="Insert Image" size={30} />
+                <div className='cursor-pointer hover:text-pink-800 duration-300' onClick={onGetImage}>
+                    {messageImage ? <img src={messageImage} height={30} alt="Message" className='rounded-md max-h-[60px]' /> : <FaImage title="Insert Image" size={30} />}
                 </div>
                 {/* <div className='cursor-pointer hover:text-purple-800 duration-300'>
                     <MdGif title="Add Gif" size={40} />
@@ -179,18 +357,61 @@ function MessageActions(props: IAction) {
                 </button>
             </form>
 
-            <dialog  id="dialog-chatimage" className='w-screen h-screen flex flex-col justify-center items-center rounded-xl p-4 absolute top-0 bg-[#2f2e2ead] backdrop-blur-xl'>
-                <div className='w-1/2 h-1/2 bg-[#f3f1f12b] flex flex-col gap-2 rounded-2xl p-2 justify-center'>
-                    <div className='grid grid-cols-8 gap-2'>
-                        {IMAGES.humans.map((src) => <img onClick={() => { props.setChatImage(src); (document.getElementById('dialog-chatimage') as HTMLDialogElement).close() }} src={src} className="w-[70px] rounded-full cursor-pointer p-1 grayscale-[0.6] shadow-md hover:shadow-2xl duration-150 hover:grayscale-0" alt="human" />)}
+            <dialog style={{ visibility: editMessage.id ? 'visible' : "hidden" }} className='w-screen h-screen flex flex-col justify-center items-center rounded-xl p-4 absolute top-0 bg-[#2f2e2ead] backdrop-blur-xl'>
+                <div className='min-w-1/2 h-1/3 bg-[#230a2e1a] flex flex-col gap-2 rounded-2xl p-2 justify-center'>
+                    <textarea maxLength={500} value={editMessage ? editMessage.text : ""} onChange={(e) => setEditMessage({ ...editMessage, text: e.target.value })} id="edit-message" className='rounded-md w-[400px] h-full bg-white p-2' placeholder='Write Your message here...' />
+                    <div className='flex'>
+                        <button onClick={() => setEditMessage({} as IMessage)} className='w-fit bg-none text-pink-600 mx-2 px-4 py-2 mt-8 rounded-lg cursor-pointer hover:bg-[#f3f1f12b] duration-200'>Cancel</button>
+                        <button onClick={onUpdateMessage} className='w-fit bg-none text-cyan-300 mx-2 px-4 py-2 mt-8 rounded-lg cursor-pointer hover:bg-[#f3f1f12b] duration-200'>Update Message</button>
                     </div>
-                    <div className='grid grid-cols-8 gap-2'>
-                        {IMAGES.animas.map((src) => <img onClick={() => { props.setChatImage(src); (document.getElementById('dialog-chatimage') as HTMLDialogElement).close() }} src={src} className="w-[70px] rounded-full cursor-pointer p-1 grayscale-[0.6] shadow-md hover:shadow-2xl duration-150 hover:grayscale-0" alt="animas" />)}
+                </div>
+
+            </dialog>
+
+            <dialog onClick={() => setDialogEmoji(false)} style={{ visibility: dialogEmoji ? 'visible' : "hidden" }} className='w-screen h-screen flex flex-col justify-center items-center rounded-xl p-4 absolute top-0 bg-[#2f2e2ead] backdrop-blur-xl'>
+                <Picker data={EmojiData} onEmojiSelect={onEmojiSelect} />
+            </dialog>
+
+            <dialog onClick={() => setDialogEmojiReact("")} style={{ visibility: dialogEmojiReact ? 'visible' : "hidden" }} className='w-screen h-screen flex flex-col justify-center items-center rounded-xl p-4 absolute top-0 bg-[#2f2e2ead] backdrop-blur-xl'>
+                <Picker data={EmojiData} onEmojiSelect={onEmojiSelectReact} />
+            </dialog>
+
+            <dialog style={{ visibility: dialog ? 'visible' : "hidden" }} id="dialog-chatimage" className='w-screen h-screen flex flex-col justify-center items-center rounded-xl p-4 absolute top-0 bg-[#2f2e2ead] backdrop-blur-xl'>
+                <div className='min-w-1/2 h-2/3 bg-[#f3f1f12b] flex flex-col gap-2 rounded-2xl p-2 justify-center'>
+                    <div className='grid mobile:grid-cols-6 tablet:grid-cols-8 gap-2'>
+                        <img src={emily}
+                            onClick={() => { props.setChatImage(emily); setDialog(false) }}
+                            className="w-[70px] rounded-full cursor-pointer p-1 grayscale-[0.6] shadow-md hover:shadow-2xl duration-150 hover:grayscale-0"
+                            alt="human" />
+                        {IMAGES.humans.map((src, index) =>
+                            <img key={'human' + index}
+                                onClick={() => { props.setChatImage(src); setDialog(false) }}
+                                src={src}
+                                className="w-[70px] rounded-full cursor-pointer p-1 grayscale-[0.6] shadow-md hover:shadow-2xl duration-150 hover:grayscale-0"
+                                alt="human" />
+                        )}
                     </div>
+                    <div className='grid mobile:grid-cols-6 tablet:grid-cols-8 gap-2'>
+                        {IMAGES.animals.map((src, index) =>
+                            <img src={src}
+                                key={'animals' + index}
+                                alt="animas"
+                                onClick={() => { props.setChatImage(src); setDialog(false) }}
+                                className="w-[70px] rounded-full cursor-pointer p-1 grayscale-[0.6] shadow-md hover:shadow-2xl duration-150 hover:grayscale-0"
+                            />
+                        )}
+                    </div>
+                    <input className='invisible' id="upload-chatimage" onChange={onUploadChatImage} type="file" accept='image/*' />
+                    <div className='flex'>
+
+                        <button onClick={() => setDialog(false)} className='w-fit bg-none font-bold text-pink-400 mx-2 px-4 py-2 mt-8 rounded-lg cursor-pointer hover:bg-[#f3f1f12b] duration-200'>Cancel</button>
+                        <button onClick={() => document.getElementById('upload-chatimage')?.click()} className='w-fit bg-none font-bold text-cyan-400 mx-2 px-4 py-2 mt-8 rounded-lg cursor-pointer hover:bg-[#f3f1f12b] duration-200'>Upload</button>
+                    </div>
+
                 </div>
             </dialog>
 
-        </div>
+        </div >
     )
 }
 

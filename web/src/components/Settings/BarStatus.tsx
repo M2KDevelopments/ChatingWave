@@ -1,14 +1,14 @@
-import { BsPersonAdd } from 'react-icons/bs';
+// import { BsPersonAdd } from 'react-icons/bs';
 import { FaCircle } from "react-icons/fa6";
 import { IPerson } from '../../interfaces/person';
 import { IMessage } from '../../interfaces/message';
 import { Dispatch, SetStateAction, useMemo } from 'react';
-import emily from '../../assets/emily.jpg';
-import swal from "sweetalert";
+// import emily from '../../assets/emily.jpg';
+// import swal from "sweetalert";
 
 
 const size = 10;
-const profileSize = 30;
+// const profileSize = 30;
 interface IMessageStatus {
     lightmode: boolean,
     people: Array<IPerson>,
@@ -43,17 +43,17 @@ function BarStatus(props: IMessageStatus) {
     }, [props.messages])
 
 
-    const onAddPerson = async () => {
-        const name = await swal({
-            title: `Add Person to Chat`,
-            text: `What is the name of the person?`,
-            icon: `info`,
-            content: { element: 'input' },
-            buttons: ['NO', 'YES']
-        });
-        if (!name) return;
-        props.setPeople([...props.people, { name, image: emily }]);
-    }
+    // const onAddPerson = async () => {
+    //     const name = await swal({
+    //         title: `Add Person to Chat`,
+    //         text: `What is the name of the person?`,
+    //         icon: `info`,
+    //         content: { element: 'input' },
+    //         buttons: ['NO', 'YES']
+    //     });
+    //     if (!name) return;
+    //     props.setPeople([...props.people, { name, image: emily }]);
+    // }
 
 
     return (
@@ -92,12 +92,12 @@ function BarStatus(props: IMessageStatus) {
                         <img title={person.name} src={person.image} alt={person.name} className="rounded-full" />
                     </button>
                 )}
-                <button disabled={props.loading} onClick={() => props.setIndexPerson(-1)} style={{ backgroundColor: props.indexPerson == -1 ? "#f59e0b" : "#f8fafc" }} className="w-16 rounded-full text-amber-900 bg-slate-50 p-1 cursor-pointer hover:bg-purple-600 duration-200 flex justify-center items-center shadow hover:shadow-2xl hover:shadow-purple-100 hover:text-white">
+                <button disabled={props.loading} onClick={() => props.setIndexPerson(-1)} style={{ backgroundColor: props.indexPerson == -1 ? "#f59e0b" : "#f8fafc" }} className="w-16 rounded-full text-amber-900 bg-slate-50 p-1 cursor-pointer hover:bg-purple-600 duration-200 flex justify-center items-center shadow hover:shadow-2xl hover:shadow-purple-100 hover:text-amber-900 hover:font-bold">
                     <span>You</span>
                 </button>
-                <button disabled={props.loading} onClick={onAddPerson} className="w-16 rounded-full text-amber-900 bg-slate-50 p-1 cursor-pointer hover:bg-purple-600 duration-200 flex justify-center items-center shadow hover:shadow-2xl hover:shadow-purple-100 hover:text-white">
+                {/* <button disabled={props.loading} onClick={onAddPerson} className="w-16 rounded-full text-amber-900 bg-slate-50 p-1 cursor-pointer hover:bg-purple-600 duration-200 flex justify-center items-center shadow hover:shadow-2xl hover:shadow-purple-100 hover:text-white">
                     <BsPersonAdd size={profileSize} title="Add Person" className="rounded-full" />
-                </button>
+                </button> */}
             </div>
         </div>
     )

@@ -1,4 +1,5 @@
 import emily from './emily.jpg';
+import you from './you.png';
 export const MESSAGES = [
     {
         id: "1",
@@ -21,7 +22,7 @@ export const MESSAGES = [
         image: "https://images.pexels.com/photos/886521/pexels-photo-886521.jpeg?auto=compress&cs=tinysrgb&w=600",
         scale: 1,
         opacity: 1,
-        profileImage: emily
+        profileImage: you
     },
     {
         id: "3",
@@ -34,7 +35,7 @@ export const MESSAGES = [
         read: true,
         scale: 1,
         opacity: 1,
-        profileImage: emily
+        profileImage: you
     },
 
     {
@@ -58,7 +59,7 @@ export const MESSAGES = [
         image: "https://images.pexels.com/photos/886521/pexels-photo-886521.jpeg?auto=compress&cs=tinysrgb&w=600",
         scale: 1,
         opacity: 1,
-        profileImage: emily
+        profileImage: you
     },
     {
         id: "6",
@@ -71,7 +72,7 @@ export const MESSAGES = [
         read: true,
         scale: 1,
         opacity: 1,
-        profileImage: emily
+        profileImage: you
     },
 
     {
@@ -96,7 +97,7 @@ export const MESSAGES = [
         image: "https://images.pexels.com/photos/886521/pexels-photo-886521.jpeg?auto=compress&cs=tinysrgb&w=600",
         scale: 1,
         opacity: 1,
-        profileImage: emily
+        profileImage: you
     },
     {
         id: "9",
@@ -109,6 +110,6 @@ export const MESSAGES = [
         read: true,
         scale: 1,
         opacity: 1,
-        profileImage: emily
+        profileImage: you
     }
 ]

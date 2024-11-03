@@ -320,23 +320,23 @@ function SaveMessages(props: IExport) {
 
             <div className='flex w-full'>
                 {props.playing ?
-                    <button className="rounded-s-md flex content-center items-center align-middle text-center justify-center gap-4 w-2/4 px-6 py-2 font-bold text-white text-3xl bg-gradient-to-tr from-red-400 to-red-500 shadow-2xl shadow-red-400 hover:shadow-3xl hover:shadow-white duration-200 cursor-pointer" onClick={onStop}>
+                    <button className="rounded-s-md flex content-center items-center align-middle text-center justify-center gap-4 w-2/4 px-6 py-3 font-bold text-white text-2xl bg-gradient-to-tr from-red-400 to-red-500 shadow-2xl shadow-red-400 hover:shadow-3xl hover:shadow-white duration-200 cursor-pointer" onClick={onStop}>
                         <span>Stop</span>
                         <FaStop />
                     </button> :
-                    <button className="rounded-s-md flex content-center items-center align-middle text-center justify-center gap-4 w-2/4 px-6 py-2 font-bold text-white text-3xl bg-gradient-to-tr from-blue-400 to-blue-500 shadow-2xl shadow-blue-400 hover:shadow-3xl hover:shadow-blue-300 duration-200 cursor-pointer" disabled={props.loading} onClick={onPreview}>
+                    <button className="rounded-s-md flex content-center items-center align-middle text-center justify-center gap-4 w-2/4 px-6 py-3 font-bold text-white text-2xl bg-gradient-to-tr from-blue-400 to-blue-500 shadow-2xl shadow-blue-400 hover:shadow-3xl hover:shadow-blue-300 duration-200 cursor-pointer" disabled={props.loading} onClick={onPreview}>
                         <span>Preview</span>
                         <FaPlay />
                     </button>
                 }
 
-                <button disabled={props.loading} className="flex content-center items-center align-middle text-center justify-center gap-4 w-2/4 px-6 py-2 font-bold text-white text-3xl bg-gradient-to-tr from-pink-400 to-pink-500 shadow-2xl shadow-pink-400 hover:shadow-3xl hover:shadow-white duration-200 cursor-pointer" onClick={onScreenshot}>
+                <button disabled={props.loading} className="flex content-center items-center align-middle text-center justify-center gap-4 w-2/4 px-6 py-3 font-bold text-white text-2xl bg-gradient-to-tr from-pink-400 to-pink-500 shadow-2xl shadow-pink-400 hover:shadow-3xl hover:shadow-white duration-200 cursor-pointer" onClick={onScreenshot}>
                     <span>{props.loading ? "Loading..." : "Screenshot"}</span>
                     <FaImage />
                 </button>
 
-                <button disabled={props.loading} className="rounded-e-md flex content-center items-center align-middle text-center justify-center gap-4 w-2/4 px-6 py-2 font-bold text-white text-3xl bg-gradient-to-tr from-amber-400 to-amber-500 shadow-2xl shadow-amber-400 hover:shadow-3xl hover:shadow-white duration-200 cursor-pointer" onClick={onExport}>
-                    <span>{props.loading || ffmpegLoaded ? "Loading..." : "Video"}</span>
+                <button disabled={props.loading} className="rounded-e-md flex content-center items-center align-middle text-center justify-center gap-4 w-2/4 px-6 py-3 font-bold text-white text-2xl bg-gradient-to-tr from-amber-400 to-amber-500 shadow-2xl shadow-amber-400 hover:shadow-3xl hover:shadow-white duration-200 cursor-pointer" onClick={onExport}>
+                    <span>{props.loading || !ffmpegLoaded ? "Loading..." : "Video"}</span>
                     <FaVideo />
                 </button>
 
