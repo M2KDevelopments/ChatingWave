@@ -14,6 +14,7 @@ import { FaSquareWhatsapp } from "react-icons/fa6";
 // import { FaTelegram } from "react-icons/fa6";
 // import { AiFillTikTok } from "react-icons/ai";
 import emily from '../../assets/emily.jpg';
+import IMAGES from '../../assets/images.json';
 
 const size = 20;
 
@@ -88,8 +89,8 @@ function MessageActions(props: IAction) {
     return (
         <div style={{ borderColor: props.lightmode ? "#bfcbd3" : "#4b5563" }} className='w-full p-2 border-2 rounded-md flex flex-col'>
 
-            <div className='flex gap-3 hover:bg-gray-400 duration-300 cursor-pointer items-center p-3 relative'>
-                <img src={props.chatImage} className='w-12 h-12 rounded-full' />
+            <div className='flex gap-3 hover:bg-gray-400 duration-300  items-center p-3 relative'>
+                <img src={props.chatImage} className='w-12 h-12 rounded-full cursor-pointer' onClick={() => (document.getElementById('dialog-chatimage') as HTMLDialogElement).show()} />
                 <input maxLength={20} disabled={props.loading} className='border-2 h-10 border-blue-200 w-full outline-none font-thin text-gray-600 rounded-full px-5 focus:border-gray-600' value={props.chatName} onChange={e => props.setChatName(e.target.value)} placeholder='Chat Name' />
                 <div className='w-full'></div>
                 <div className='flex gap-5 justify-end'>
@@ -177,6 +178,17 @@ function MessageActions(props: IAction) {
                     <IoSend />
                 </button>
             </form>
+
+            <dialog  id="dialog-chatimage" className='w-screen h-screen flex flex-col justify-center items-center rounded-xl p-4 absolute top-0 bg-[#2f2e2ead] backdrop-blur-xl'>
+                <div className='w-1/2 h-1/2 bg-[#f3f1f12b] flex flex-col gap-2 rounded-2xl p-2 justify-center'>
+                    <div className='grid grid-cols-8 gap-2'>
+                        {IMAGES.humans.map((src) => <img onClick={() => { props.setChatImage(src); (document.getElementById('dialog-chatimage') as HTMLDialogElement).close() }} src={src} className="w-[70px] rounded-full cursor-pointer p-1 grayscale-[0.6] shadow-md hover:shadow-2xl duration-150 hover:grayscale-0" alt="human" />)}
+                    </div>
+                    <div className='grid grid-cols-8 gap-2'>
+                        {IMAGES.animas.map((src) => <img onClick={() => { props.setChatImage(src); (document.getElementById('dialog-chatimage') as HTMLDialogElement).close() }} src={src} className="w-[70px] rounded-full cursor-pointer p-1 grayscale-[0.6] shadow-md hover:shadow-2xl duration-150 hover:grayscale-0" alt="animas" />)}
+                    </div>
+                </div>
+            </dialog>
 
         </div>
     )
