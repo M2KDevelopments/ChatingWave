@@ -4,14 +4,17 @@ import bgWA from '../../assets/bg-whatsapp.png';
 import bgWADark from '../../assets/bg-whatsapp-dark.png';
 import { IoCheckmarkDoneSharp } from "react-icons/io5";
 import { IoCheckmarkOutline } from "react-icons/io5";
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
+import ModalTextMessage from '../Modals/ModalTextMessage';
 
 const heightPercentage = 83 / 100.0;
 const replyMessageHeightPercentage = 13 / 100.0;
 
+
 function WhatsappConversation(props: IPhone) {
 
     const fontSize = 21 * (props.height / 1280);
+    const [editMessage, setEditMessage] = useState({} as IMessage);
 
 
     const messageMap = useMemo(() => {
@@ -26,6 +29,7 @@ function WhatsappConversation(props: IPhone) {
             {
                 props.messages.map((msg, index) =>
                     <div
+                        onClick={() => setEditMessage(msg)}
                         style={{
                             marginTop: index > 0 && props.messages[index - 1].me != msg.me ? 20 : 0,
                             background: props.lightmode ? (msg.me ? "#d9fdd3" : "white") : (msg.me ? "#154c37" : "#1f2c34"),
@@ -33,9 +37,10 @@ function WhatsappConversation(props: IPhone) {
                             opacity: msg.opacity,
                             scale: msg.scale,
                             top: props.scrollY,
-                            color: props.lightmode ? "#111827" : "#fefefe"
+                            color: props.lightmode ? "#111827" : "#fefefe",
+                            border: props.hoverIndex == index ? 'solid 2px orange' : undefined
                         }}
-                        className='relative  max-w-[80%] rounded-lg shadow-lg flex flex-col p-2'
+                        className='relative  max-w-[80%] rounded-lg shadow-lg flex flex-col p-2 cursor-pointer'
                         id={`msg-${props.id}-${msg.id}`} // msg-preview-{id} or msg-phone-{id}
                         key={msg.id + index}>
 
@@ -100,6 +105,8 @@ function WhatsappConversation(props: IPhone) {
                     </div>
                 )
             }
+            <ModalTextMessage editMessage={editMessage} messages={props.messages} setMessages={props.setMessages} setEditMessage={setEditMessage} />
+
         </div>
     )
 }

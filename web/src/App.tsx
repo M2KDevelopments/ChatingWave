@@ -40,6 +40,9 @@ function App() {
   const [platform, setPlatform] = useState("whatsapp");
   const [size, setSize] = useState({ width: 480, height: 854 });
 
+  // For Visuals
+  const [hoverIndex, setHoverIndex] = useState(-1);
+
   // Messages
   const [messages, setMessages] = useState([] as Array<IMessage>)
   const [people, setPeople] = useState([{ name: "Emily Banks", image: emily }] as Array<IPerson>);
@@ -86,9 +89,12 @@ function App() {
               platform={platform}
               lightmode={lightmode}
               messages={playing ? templateMessages : messages}
+              setMessages={setMessages}
               online={online}
               scrollY={previewScrollY}
               noScrollBar={playing}
+              hoverIndex={hoverIndex}
+              setHoverIndex={setHoverIndex}
             />
           </div>
         </section>
@@ -126,6 +132,7 @@ function App() {
             setChatName={setChatName}
             platform={platform}
             setPlatform={setPlatform}
+            setHoverIndex={setHoverIndex}
           />
 
           <SaveMessages
@@ -155,9 +162,12 @@ function App() {
           platform={platform}
           lightmode={lightmode}
           messages={playing ? templateMessages : messages}
+          setMessages={setMessages}
           online={true}
           scrollY={phoneScrollY}
           noScrollBar={true}
+          hoverIndex={-1}
+          setHoverIndex={setHoverIndex}
         />
       </div>
 

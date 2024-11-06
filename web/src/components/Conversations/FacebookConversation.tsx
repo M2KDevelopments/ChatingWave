@@ -1,6 +1,7 @@
 import { IPhone } from '../../interfaces/phone'
 import { IMessage } from '../../interfaces/message';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
+import ModalTextMessage from '../Modals/ModalTextMessage';
 
 const heightPercentage = 83 / 100.0;
 const replyMessageHeightPercentage = 13 / 100.0;
@@ -8,6 +9,7 @@ function FacebookConversation(props: IPhone) {
 
     const fontSize = 21 * (props.height / 1280);
     const profileSize = 45 * (props.height / 1280);
+    const [editMessage, setEditMessage] = useState({} as IMessage);
 
 
     const messageMap = useMemo(() => {
@@ -17,6 +19,7 @@ function FacebookConversation(props: IPhone) {
     }, [props.messages]);
 
 
+
     return (
         <div id={`conversation-${props.id}`} aria-label="conversation" className='w-full flex flex-col gap-2 p-3'
             style={{
@@ -24,9 +27,11 @@ function FacebookConversation(props: IPhone) {
                 height: props.height * heightPercentage,
                 background: props.lightmode ? "#f3f4f6" : "black",
             }}>
+
             {
                 props.messages.map((msg, index) =>
                     <div
+                        onClick={() => setEditMessage(msg)}
                         style={{
                             marginTop: index > 0 && props.messages[index - 1].me != msg.me ? 20 : 0,
                             alignSelf: msg.me ? "end" : "auto",
@@ -34,9 +39,10 @@ function FacebookConversation(props: IPhone) {
                             opacity: msg.opacity,
                             scale: msg.scale,
                             top: props.scrollY,
-                            color: props.lightmode ? "#111827" : "lightgray"
+                            color: props.lightmode ? "#111827" : "lightgray",
+                            border: props.hoverIndex == index ? 'solid 2px orange' : undefined
                         }}
-                        className='relative max-w-[60%] rounded-lg flex flex-col p-2'
+                        className='relative max-w-[60%] rounded-lg flex flex-col p-2 cursor-pointer'
                         id={`msg-${props.id}-${msg.id}`} // msg-preview-{id} or msg-phone-{id}
                         key={msg.id + index}>
 
@@ -97,6 +103,9 @@ function FacebookConversation(props: IPhone) {
                     </div>
                 )
             }
+
+            <ModalTextMessage editMessage={editMessage} messages={props.messages} setMessages={props.setMessages} setEditMessage={setEditMessage} />
+
         </div>
     )
 }

@@ -21,6 +21,8 @@ import Picker from '@emoji-mart/react'
 import { MdBlock } from 'react-icons/md'
 import { FaCloudDownloadAlt } from 'react-icons/fa'
 import JSZip from 'jszip';
+import ModalTextMessage from '../Modals/ModalTextMessage'
+import { AiFillDelete, AiFillEdit } from 'react-icons/ai'
 const zip = new JSZip();
 const size = 20;
 
@@ -38,6 +40,7 @@ interface IAction {
     setChatName: (chatName: string) => void,
     setChatImage: (chatImage: string) => void,
     setPlatform: (p: string) => void,
+    setHoverIndex: (index: number) => void,
 }
 
 interface Emoji {
@@ -156,6 +159,11 @@ function MessageActions(props: IAction) {
         props.messages[index].reactions.push(emoji);
         props.setMessages([...props.messages]);
         toast.success(`Reacted to message with ${emoji}`);
+    }
+
+    const onDeleteMessage = async (index: number) => {
+        props.setMessages(props.messages.filter((m, i) => i != index));
+        toast.success('Message removed');
     }
 
 
@@ -296,23 +304,26 @@ function MessageActions(props: IAction) {
             {
                 props.messages.length > 0 ?
                     <div
-                        style={{
-                            background: props.lightmode ? "#d9d8d8" : "#1a2439",
-                        }}
+                        style={{ background: props.lightmode ? "#d9d8d8" : "#1a2439" }}
                         className='flex flex-col gap-2 h-[45vh] p-2 overflow-y-scroll rounded-lg'>
                         {props.messages.map((message, index) =>
                             props.lightmode ?
-                                <div onDoubleClick={() => setEditMessage(message)} key={'act' + index} className='cursor-pointer flex gap-3 hover:bg-slate-400 duration-300 items-center p-3 relative'>
+                                <div key={'act' + index} className='cursor-grab flex gap-3 hover:bg-slate-400 duration-300 items-center px-3 py-6 relative' onMouseEnter={() => props.setHoverIndex(index)} onMouseLeave={() => props.setHoverIndex(-1)}>
                                     <img src={message.profileImage} className='w-8 h-8 rounded-full' />
-                                    <span className='w-full text-wrap text-ellipsis text-slate-900'>{message.text}</span>
-                                    <span onClick={() => setDialogEmojiReact(message.id)} className='absolute right-14 bottom-2 text-slate-900 font-thin'><IoMdHappy color={message.reactions.length ? " #f59e0b" : undefined} title="React to Message" size={20} /></span>
-                                    <span className='absolute right-2 bottom-2 text-slate-900 font-thin'>{message.time}</span>
-                                </div> :
-                                <div onDoubleClick={() => setEditMessage(message)} key={'act' + index} className='cursor-pointer flex gap-3 hover:bg-cyan-950 duration-300 items-center p-3 relative'>
+                                    <span className='pointer-events-none w-full text-wrap text-ellipsis text-slate-900'>{message.text}</span>
+                                    <span onClick={() => setDialogEmojiReact(message.id)} className='cursor-pointer absolute right-[136px] bottom-2 text-slate-900 font-thin'><IoMdHappy color={message.reactions.length ? " #f59e0b" : undefined} title="React to Message" size={20} /></span>
+                                    <span onClick={() => setEditMessage(message)} className='cursor-pointer absolute right-24 bottom-2 text-slate-900 font-thin'><AiFillEdit title="Edit Message" size={20} /></span>
+                                    <span onClick={() => onDeleteMessage(index)} className='cursor-pointer absolute right-14 bottom-2 text-slate-900 font-thin'><AiFillDelete title="Edit Message" size={20} /></span>
+                                    <span className='cursor-pointer absolute right-2 bottom-2 text-slate-900 font-thin'>{message.time}</span>
+                                </div>
+                                :
+                                <div key={'act' + index} className='cursor-grab flex gap-3 hover:bg-cyan-950 duration-300 items-center px-3 py-4 relative' onMouseEnter={() => props.setHoverIndex(index)} onMouseLeave={() => props.setHoverIndex(-1)}>
                                     <img src={message.profileImage} className='w-8 h-8 rounded-full' />
-                                    <span className='w-full text-wrap text-ellipsis text-white'>{message.text}</span>
-                                    <span onClick={() => setDialogEmojiReact(message.id)} className='absolute right-14 bottom-2 text-white font-thin'><IoMdHappy color={message.reactions.length ? " #f59e0b" : undefined} title="React to Message" size={20} /></span>
-                                    <span className='absolute right-2 bottom-2 text-white font-thin'>{message.time}</span>
+                                    <span className='pointer-events-none w-full text-wrap text-ellipsis text-white '>{message.text}</span>
+                                    <span onClick={() => setDialogEmojiReact(message.id)} className='cursor-pointer absolute right-[136px] bottom-2 text-white font-thin'><IoMdHappy color={message.reactions.length ? " #f59e0b" : undefined} title="React to Message" size={20} /></span>
+                                    <span onClick={() => setEditMessage(message)} className='cursor-pointer absolute right-24 bottom-2 text-white font-thin'><AiFillEdit title="Edit Message" size={20} /></span>
+                                    <span onClick={() => onDeleteMessage(index)} className='cursor-pointer absolute right-14 bottom-2 text-white font-thin'><AiFillDelete title="Edit Message" size={20} /></span>
+                                    <span className='cursor-pointer absolute right-2 bottom-2 text-white font-thin'>{message.time}</span>
                                 </div>
                         )}
 
@@ -368,15 +379,17 @@ function MessageActions(props: IAction) {
 
             </dialog>
 
-            <dialog onClick={() => setDialogEmoji(false)} style={{ visibility: dialogEmoji ? 'visible' : "hidden" }} className='w-screen h-screen flex flex-col justify-center items-center rounded-xl p-4 absolute top-0 bg-[#2f2e2ead] backdrop-blur-xl'>
+            <ModalTextMessage editMessage={editMessage} messages={props.messages} setMessages={props.setMessages} setEditMessage={setEditMessage} />
+
+            {dialogEmoji ? <dialog onClick={() => setDialogEmoji(false)} style={{ visibility: dialogEmoji ? 'visible' : "hidden" }} className='w-screen h-screen flex flex-col justify-center items-center rounded-xl p-4 absolute top-0 bg-[#2f2e2ead] backdrop-blur-xl'>
                 <Picker data={EmojiData} onEmojiSelect={onEmojiSelect} />
-            </dialog>
+            </dialog> : null}
 
-            <dialog onClick={() => setDialogEmojiReact("")} style={{ visibility: dialogEmojiReact ? 'visible' : "hidden" }} className='w-screen h-screen flex flex-col justify-center items-center rounded-xl p-4 absolute top-0 bg-[#2f2e2ead] backdrop-blur-xl'>
+            {dialogEmojiReact ? <dialog onClick={() => setDialogEmojiReact("")} style={{ visibility: dialogEmojiReact ? 'visible' : "hidden" }} className='w-screen h-screen flex flex-col justify-center items-center rounded-xl p-4 absolute top-0 bg-[#2f2e2ead] backdrop-blur-xl'>
                 <Picker data={EmojiData} onEmojiSelect={onEmojiSelectReact} />
-            </dialog>
+            </dialog> : null}
 
-            <dialog style={{ visibility: dialog ? 'visible' : "hidden" }} id="dialog-chatimage" className='w-screen h-screen flex flex-col justify-center items-center rounded-xl p-4 absolute top-0 bg-[#2f2e2ead] backdrop-blur-xl'>
+            {dialog ? <dialog style={{ visibility: dialog ? 'visible' : "hidden" }} id="dialog-chatimage" className='w-screen h-screen flex flex-col justify-center items-center rounded-xl p-4 absolute top-0 bg-[#2f2e2ead] backdrop-blur-xl'>
                 <div className='min-w-1/2 h-2/3 bg-[#f3f1f12b] flex flex-col gap-2 rounded-2xl p-2 justify-center'>
                     <div className='grid mobile:grid-cols-6 tablet:grid-cols-8 gap-2'>
                         <img src={emily}
@@ -409,7 +422,7 @@ function MessageActions(props: IAction) {
                     </div>
 
                 </div>
-            </dialog>
+            </dialog> : null}
 
         </div >
     )
