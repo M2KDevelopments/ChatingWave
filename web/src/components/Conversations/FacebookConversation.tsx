@@ -19,6 +19,10 @@ function FacebookConversation(props: IPhone) {
     }, [props.messages]);
 
 
+    const onRemoveEmoji = (msgIndex: number, index: number) => {
+        props.messages[msgIndex].reactions = props.messages[msgIndex].reactions.filter((r, i) => i != index);
+        props.setMessages([...props.messages]);
+    }
 
     return (
         <div id={`conversation-${props.id}`} aria-label="conversation" className='w-full flex flex-col gap-2 p-3'
@@ -31,7 +35,7 @@ function FacebookConversation(props: IPhone) {
             {
                 props.messages.map((msg, index) =>
                     <div
-                        onClick={() => setEditMessage(msg)}
+                        onDoubleClick={() => setEditMessage(msg)}
                         style={{
                             marginTop: index > 0 && props.messages[index - 1].me != msg.me ? 20 : 0,
                             alignSelf: msg.me ? "end" : "auto",
@@ -93,7 +97,7 @@ function FacebookConversation(props: IPhone) {
                                 }}
 
                                     className='w-fit absolute -bottom-5 rounded-full px-1 shadow-sm flex justify-center items-center gap-1'>
-                                    {msg.reactions.filter((_r, i: number) => i < 3).map((emoji, i) => <span key={i + "emoji"}>{emoji}</span>)}
+                                    {msg.reactions.filter((_r, i: number) => i < 3).map((emoji, i) => <span onClick={() => onRemoveEmoji(index, i)} className='cursor-pointer' key={i + "emoji"}>{emoji}</span>)}
                                     {msg.reactions.length > 1 ? <span>{msg.reactions.length}</span> : null}
                                 </div>
                                 : null}
