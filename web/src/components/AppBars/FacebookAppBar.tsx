@@ -20,11 +20,16 @@ function FacebookAppBar(props: IPhone) {
 
 
     return (
-        <div className='w-full bg-gray-100 p-4 text-gray-900 flex gap-4 items-center shadow' style={{ height: props.height * appBarSizePercentage }}>
+        <div className='w-full flex gap-4 items-center shadow'
+            style={{
+                height: props.height * appBarSizePercentage,
+                background: props.lightmode ? "#f3f4f6" : "#010101",
+                color: props.lightmode ? "#111827":"#f3f4f6"
+            }}>
 
             {/* Back Button */}
-            <div>
-                <MdKeyboardBackspace color="#ab34f1" size={props.height * iconSizePercentage*1.2} />
+            <div className='mx-3'>
+                <MdKeyboardBackspace color="#ab34f1" size={props.height * iconSizePercentage * 1.2} />
             </div>
 
             {/* Name And Image */}
@@ -39,7 +44,7 @@ function FacebookAppBar(props: IPhone) {
             </div>
 
             {/* Video and Call */}
-            <div className='w-2/3 flex justify-end gap-7'>
+            <div className='w-2/3 flex justify-end gap-7 px-4'>
                 <FaPhoneAlt color="#ab34f1" size={props.height * iconSizePercentage} />
                 <FaVideo color="#ab34f1" size={props.height * iconSizePercentage} />
                 <MdInfo color="#ab34f1" size={props.height * iconSizePercentage} />

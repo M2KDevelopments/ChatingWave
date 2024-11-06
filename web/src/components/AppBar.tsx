@@ -1,7 +1,7 @@
 import { IPhone } from '../interfaces/phone'
 import FacebookAppBar from './AppBars/FacebookAppBar'
 import InstagramAppBar from './AppBars/InstagramAppBar'
-import IphoneAppBar from './AppBars/IphoneAppBAr'
+import IphoneAppBar from './AppBars/IphoneAppBar'
 import TwitterAppBar from './AppBars/TwitterAppBar'
 import WhatsappAppBar from './AppBars/WhatsappAppBar'
 
