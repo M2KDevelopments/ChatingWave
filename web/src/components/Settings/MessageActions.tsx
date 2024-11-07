@@ -137,9 +137,33 @@ function MessageActions(props: IAction) {
 
     }
 
+    const onChangeTime = async (msgIndex: number, time: string) => {
+        const newtime = await swal({
+            text: 'Enter the time for the message',
+            icon: 'info',
+            content: {
+                element: 'input',
+                attributes: {
+                    'style': '2px solid cyan;',
+                    'value': time,
+                    'placeholder': 'Enter the time e.g 12:14'
+                }
+            }
+        });
+
+        if (!/^\d{1,2}:\d{2}$/.test(newtime)) return;
+
+        const [h, m] = newtime.split(':').map(Number);
+        if (h < 0 || m < 0 || h > 23 || m > 59) return;
+
+        const formattedTime = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+        props.messages[msgIndex].time = formattedTime;
+        props.setMessages([...props.messages]);
+        toast.success(`Time Updated from ${time} to ${formattedTime}`);
+    }
+
     const onUploadChatImage = (e: React.ChangeEvent<HTMLInputElement>) => {
-        console.log(e.target.files);
-        if (e.target.files && e.target.files?.length) {
+         if (e.target.files && e.target.files?.length) {
             const file = e.target.files[0];
             if (file.type.includes("image")) {
                 const url = URL.createObjectURL(file);
@@ -323,15 +347,15 @@ function MessageActions(props: IAction) {
                                                         {...provided.draggableProps}
                                                         {...provided.dragHandleProps}
                                                         className='cursor-grab flex gap-3 hover:bg-slate-400 duration-300 items-center px-3 py-6 relative'
-                                                        // onMouseEnter={() => props.setHoverIndex(index)} 
-                                                        // onMouseLeave={() => props.setHoverIndex(-1)}
-                                                        >
+                                                    // onMouseEnter={() => props.setHoverIndex(index)} 
+                                                    // onMouseLeave={() => props.setHoverIndex(-1)}
+                                                    >
                                                         <img src={message.profileImage} className='w-8 h-8 rounded-full' />
                                                         <span className='pointer-events-none w-full text-wrap text-ellipsis text-slate-900'>{message.text}</span>
                                                         <span onClick={() => setDialogEmojiReact(message.id)} className='cursor-pointer absolute right-[136px] bottom-2 text-slate-900 font-thin'><IoMdHappy color={message.reactions.length ? " #f59e0b" : undefined} title="React to Message" size={20} /></span>
                                                         <span onClick={() => setEditMessage(message)} className='cursor-pointer absolute right-24 bottom-2 text-slate-900 font-thin'><AiFillEdit title="Edit Message" size={20} /></span>
                                                         <span onClick={() => onDeleteMessage(index)} className='cursor-pointer absolute right-14 bottom-2 text-slate-900 font-thin'><AiFillDelete title="Edit Message" size={20} /></span>
-                                                        <span className='cursor-pointer absolute right-2 bottom-2 text-slate-900 font-thin'>{message.time}</span>
+                                                        <span onClick={() => onChangeTime(index, message.time)} className='cursor-pointer absolute right-2 bottom-2 text-slate-900 font-thin'>{message.time}</span>
                                                     </div>
                                                     :
                                                     <div
@@ -346,7 +370,7 @@ function MessageActions(props: IAction) {
                                                         <span onClick={() => setDialogEmojiReact(message.id)} className='cursor-pointer absolute right-[136px] bottom-2 text-white font-thin'><IoMdHappy color={message.reactions.length ? " #f59e0b" : undefined} title="React to Message" size={20} /></span>
                                                         <span onClick={() => setEditMessage(message)} className='cursor-pointer absolute right-24 bottom-2 text-white font-thin'><AiFillEdit title="Edit Message" size={20} /></span>
                                                         <span onClick={() => onDeleteMessage(index)} className='cursor-pointer absolute right-14 bottom-2 text-white font-thin'><AiFillDelete title="Edit Message" size={20} /></span>
-                                                        <span className='cursor-pointer absolute right-2 bottom-2 text-white font-thin'>{message.time}</span>
+                                                        <span onClick={() => onChangeTime(index, message.time)} className='cursor-pointer absolute right-2 bottom-2 text-white font-thin'>{message.time}</span>
                                                     </div>
                                             )}
                                         </Draggable>

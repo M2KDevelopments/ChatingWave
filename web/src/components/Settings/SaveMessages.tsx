@@ -18,13 +18,22 @@ interface IExport {
     loading: boolean,
     playing: boolean,
     messages: Array<IMessage>,
+    resolution: string,
     setTemplateMessages: (messages: Array<IMessage>) => void,
     setLoading: (loading: boolean) => void,
     setPlaying: (playing: boolean) => void,
     setPhoneScrollY: (y: number) => void,
     setPreviewScrollY: (y: number) => void,
-
+    setResolution: (r: string) => void,
 }
+
+const resolutions = new Map<string, string>();
+resolutions.set('360', '360p')
+resolutions.set('480', '480p')
+resolutions.set('720', '720p')
+resolutions.set('1080', '1080p')
+resolutions.set('1440', 'HD 2k')
+resolutions.set('2160', 'HD 4k')
 
 function SaveMessages(props: IExport) {
 
@@ -158,6 +167,17 @@ function SaveMessages(props: IExport) {
 
 
     const onExport = async () => {
+
+        const result = await swal({
+            title: `Export Video`,
+            text: 'Would you like to export video?',
+            icon: 'info',
+            buttons: ['No', 'Yes'],
+        });
+
+        if (!result) return;
+
+
         const phone = document.getElementById('phone')!;
         const container = document.getElementById(`conversation-phone`)!;
 
@@ -315,6 +335,14 @@ function SaveMessages(props: IExport) {
         toast("Exported Screenshot");
     }
 
+    const onResolutionChange = () => {
+        const keys = Array.from(resolutions.keys());
+        const currentIndex = keys.indexOf(props.resolution);
+        const nextIndex = (currentIndex + 1) % resolutions.size;  
+        const r = keys[nextIndex];
+        props.setResolution(r);
+    }
+
     return (
         <div className="flex flex-col w-full">
 
@@ -335,9 +363,12 @@ function SaveMessages(props: IExport) {
                     <FaImage />
                 </button>
 
-                <button disabled={props.loading} className="rounded-e-md flex content-center items-center align-middle text-center justify-center gap-4 w-2/4 px-6 py-3 font-bold text-white text-2xl bg-gradient-to-tr from-amber-400 to-amber-500 shadow-2xl shadow-amber-400 hover:shadow-3xl hover:shadow-white duration-200 cursor-pointer" onClick={onExport}>
+                <button disabled={props.loading} className="flex content-center items-center align-middle text-center justify-center gap-4 w-2/4 px-6 py-3 font-bold text-white text-2xl bg-gradient-to-tr from-amber-400 to-amber-500 shadow-2xl shadow-amber-400 hover:shadow-3xl hover:shadow-white duration-200 cursor-pointer" onClick={onExport}>
                     <span>{props.loading || !ffmpegLoaded ? "Loading..." : "Video"}</span>
                     <FaVideo />
+                </button>
+                <button onClick={onResolutionChange} className="rounded-e-md bg-amber-500 px-4 font-bold text-white shadow-2xl shadow-amber-400 hover:shadow-3xl hover:shadow-white duration-200 cursor-pointer">
+                    {resolutions.get(props.resolution)}
                 </button>
 
             </div>

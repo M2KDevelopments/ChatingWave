@@ -66,8 +66,7 @@ function App() {
     setMessages(MESSAGES); // Set Messages Default
 
     // Todo Automatically adjust as the window resizes
-    // setSize({ width: 480, height: 854 });
-    setSize({ width: 480, height: resolutions.get("480")! });
+    setSize({ width: 480, height: 854 });
   }, [])
 
 
@@ -144,6 +143,8 @@ function App() {
             setTemplateMessages={setTemplateMessages}
             setPhoneScrollY={setPhoneScrollY}
             setPreviewScrollY={setPreviewScrollY}
+            resolution={resolution}
+            setResolution={setResolution}
           />
 
 
