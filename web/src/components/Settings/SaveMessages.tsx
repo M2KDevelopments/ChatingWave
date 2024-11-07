@@ -110,7 +110,8 @@ function SaveMessages(props: IExport) {
         for (const index in props.messages) {
 
             const msg = { ...props.messages[index] };// a copy of the object
-
+            const reactions = [...msg.reactions];
+            msg.reactions = [];
 
             // wait for the message to appear
             await waitFor(msg.delay || 2);
@@ -129,7 +130,7 @@ function SaveMessages(props: IExport) {
             // message under the container
             const y1 = container.getBoundingClientRect().bottom;
             const y2 = messageHeights[index].bottom - (scrolling * -1);
-            console.log(`msg-preview-${msg.id}`, y2, y1);
+
             if (y2 > y1) {
                 let padding = 30;
                 // if the next is a new message
@@ -137,6 +138,14 @@ function SaveMessages(props: IExport) {
 
                 scrolling -= (y2 - y1) + padding;
                 props.setPreviewScrollY(scrolling)
+            }
+
+            // do reactions
+            const reactionTime = 2;//seconds
+            for (const reaction of reactions) {
+                await waitFor(reactionTime);
+                list[index].reactions.push(reaction);
+                props.setTemplateMessages([...list]);
             }
 
         }
@@ -215,7 +224,8 @@ function SaveMessages(props: IExport) {
                 setProgress(percentage);
 
                 const msg = { ...props.messages[index] };// a copy of the object
-
+                const reactions = [...msg.reactions];
+                msg.reactions = [];
 
                 // wait for the message to appear
                 await waitFor(msg.delay || 2);
@@ -241,18 +251,40 @@ function SaveMessages(props: IExport) {
                     props.setPhoneScrollY(scrolling)
                 }
 
+                // For calculating sub percentages
+                const differentBetweenMajorPecentage = (100 / props.messages.length);
+
 
                 // Get the images for the video
                 const seconds = 0.3;
                 const count = parseInt((seconds * FRAMES).toString());
                 for (let i = 0; i <= count; i++) {
-                    const p = percentage + ((i * (100 / props.messages.length)) / count);
+                    const p = percentage + ((i * differentBetweenMajorPecentage * 0.5) / count);
                     setProgress(p);
                     list[index].opacity = parseFloat(((i / count) * 1.00).toString());
                     props.setTemplateMessages([...list]);
                     const imgB64 = await domtoimage.toJpeg(phone);
                     images.push(imgB64);
                 }
+
+
+                // Reaction Animations
+                if (reactions.length) {
+                    const reactionTime = 2 * FRAMES; // seconds
+                    for (const i in reactions) {
+                        const p = percentage + ((parseInt(i) * differentBetweenMajorPecentage * 0.5) / reactions.length) + differentBetweenMajorPecentage * 0.5;
+                        setProgress(p);
+
+                        const reaction = reactions[i];
+                        list[index].reactions.push(reaction);
+                        props.setTemplateMessages([...list]);
+                        for (let j = 0; j < reactionTime; j++) {
+                            const imgB64 = await domtoimage.toJpeg(phone);
+                            images.push(imgB64);
+                        }
+                    }
+                }
+
 
                 // wait frames
                 const waiting = 3; // seconds
@@ -338,7 +370,7 @@ function SaveMessages(props: IExport) {
     const onResolutionChange = () => {
         const keys = Array.from(resolutions.keys());
         const currentIndex = keys.indexOf(props.resolution);
-        const nextIndex = (currentIndex + 1) % resolutions.size;  
+        const nextIndex = (currentIndex + 1) % resolutions.size;
         const r = keys[nextIndex];
         props.setResolution(r);
     }
