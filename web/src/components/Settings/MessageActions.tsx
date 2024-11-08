@@ -324,15 +324,15 @@ function MessageActions(props: IAction) {
                     const image = URL.createObjectURL(blob);
 
                     if (filename.includes("images")) {
-                        const i = filename.replace('.png', '').replace('/images', '')
+                        const i = filename.replace('.png', '').replace('images', '').replace('/', '')
                         const msgIndex = chatjson.messages.findIndex((m: IMessage) => m.id == i);
                         chatjson.messages[msgIndex].image = image;
                     } else if (filename.includes("profiles")) {
-                        const i = filename.replace('.png', '').replace('/profiles', '')
+                        const i = filename.replace('.png', '').replace('profiles', '').replace('/', '')
                         const msgIndex = chatjson.messages.findIndex((m: IMessage) => m.id == i);
                         chatjson.messages[msgIndex].profileImage = image;
                     } else if (filename.includes("people")) {
-                        const i = filename.replace('.png', '').replace('/people', '')
+                        const i = filename.replace('.png', '').replace('people', '').replace('/', '')
                         const personIndex = parseInt(i);
                         chatjson.people[personIndex].image = image;
                     }
@@ -341,7 +341,7 @@ function MessageActions(props: IAction) {
 
             props.setChatName(chatName);
             props.setChatImage(chatImage);
-            props.setMessages(chatjson.message)
+            props.setMessages(chatjson.messages)
             props.setPeople(chatjson.people);
             toast.success('Chat Loaded');
         }
