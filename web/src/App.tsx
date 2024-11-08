@@ -132,6 +132,7 @@ function App() {
             platform={platform}
             setPlatform={setPlatform}
             setHoverIndex={setHoverIndex}
+            setPeople={setPeople}
           />
 
           <SaveMessages

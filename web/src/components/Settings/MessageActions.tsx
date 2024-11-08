@@ -22,7 +22,7 @@ import { toast } from 'react-toastify'
 import EmojiData from '@emoji-mart/data'
 import Picker from '@emoji-mart/react'
 import { MdBlock } from 'react-icons/md'
-import { FaCloudDownloadAlt } from 'react-icons/fa'
+import { FaCloudDownloadAlt, FaCloudUploadAlt } from 'react-icons/fa'
 import JSZip from 'jszip';
 import ModalTextMessage from '../Modals/ModalTextMessage'
 import { AiFillDelete, AiFillEdit } from 'react-icons/ai'
@@ -36,7 +36,7 @@ interface IAction {
     messages: Array<IMessage>,
     indexPerson: number,
     people: Array<IPerson>,
-    setMessages: (messages: Array<IMessage>) => void,
+
     chatImage: string,
     chatName: string,
     platform: string,
@@ -44,6 +44,8 @@ interface IAction {
     setChatImage: (chatImage: string) => void,
     setPlatform: (p: string) => void,
     setHoverIndex: (index: number) => void,
+    setMessages: (messages: Array<IMessage>) => void,
+    setPeople: (people: Array<IPerson>) => void,
 }
 
 interface Emoji {
@@ -163,7 +165,7 @@ function MessageActions(props: IAction) {
     }
 
     const onUploadChatImage = (e: React.ChangeEvent<HTMLInputElement>) => {
-         if (e.target.files && e.target.files?.length) {
+        if (e.target.files && e.target.files?.length) {
             const file = e.target.files[0];
             if (file.type.includes("image")) {
                 const url = URL.createObjectURL(file);
@@ -258,6 +260,16 @@ function MessageActions(props: IAction) {
             }
         }
 
+        const peopleFolder = zip.folder("people");
+        for (const index in props.people) {
+            const person = props.people[index];
+            if (person.image) {
+                const img = await loadImage(person.image);
+                const base64 = getBase64Image(img);
+                peopleFolder?.file(`${index}.png`, base64, { base64: true });
+            }
+        }
+
         const chatimg = await loadImage(props.chatImage);
         const chatbase64 = getBase64Image(chatimg);
         zip?.file(`chatimage.png`, chatbase64, { base64: true });
@@ -284,9 +296,56 @@ function MessageActions(props: IAction) {
         toast.success('Downloaded Chat File')
     }
 
-    // const onUploadChat = () => {
 
-    // }
+
+
+
+    // https://www.youtube.com/watch?v=serIZm6NJDg
+    // https://stackoverflow.com/questions/39322964/extracting-zipped-files-using-jszip-in-javascript
+    const onUploadChat = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files) {
+            const file = e.target.files[0];
+            const content = await zip.loadAsync(file)
+            const filenames = Object.keys(content.files);
+
+            const strjson = await content.files['chat.json'].async('string');
+            const chatimageblob = await content.files['chatimage.png'].async('blob');
+            const chatImage = URL.createObjectURL(chatimageblob);
+            const chatjson = JSON.parse(strjson);
+            const chatName = chatjson.chatName;
+            if (typeof chatjson.messages == 'string') {
+                chatjson.messages = JSON.parse(chatjson.messages);
+            }
+            for (const filename of filenames) {
+                const blob = await content.files[filename].async('blob');
+
+                // These are your file contents
+                if (filename.includes('.png')) {
+                    const image = URL.createObjectURL(blob);
+
+                    if (filename.includes("images")) {
+                        const i = filename.replace('.png', '').replace('/images', '')
+                        const msgIndex = chatjson.messages.findIndex((m: IMessage) => m.id == i);
+                        chatjson.messages[msgIndex].image = image;
+                    } else if (filename.includes("profiles")) {
+                        const i = filename.replace('.png', '').replace('/profiles', '')
+                        const msgIndex = chatjson.messages.findIndex((m: IMessage) => m.id == i);
+                        chatjson.messages[msgIndex].profileImage = image;
+                    } else if (filename.includes("people")) {
+                        const i = filename.replace('.png', '').replace('/people', '')
+                        const personIndex = parseInt(i);
+                        chatjson.people[personIndex].image = image;
+                    }
+                }
+            }
+
+            props.setChatName(chatName);
+            props.setChatImage(chatImage);
+            props.setMessages(chatjson.message)
+            props.setPeople(chatjson.people);
+            toast.success('Chat Loaded');
+        }
+    }
 
     return (
         <div style={{ borderColor: props.lightmode ? "#bfcbd3" : "#4b5563" }} className='w-full p-2 border-2 rounded-md flex flex-col'>
@@ -300,9 +359,11 @@ function MessageActions(props: IAction) {
                 <button disabled={props.loading || loading} onClick={onDownloadChat} title="Download Chat" style={{ color: props.lightmode ? "#be185d" : "white" }} className=''>
                     <FaCloudDownloadAlt size={28} />
                 </button>
-                {/* <button onClick={onUploadChat} title="Upload Chat" style={{ color: props.lightmode ? "#be185d" : "white" }} className=''>
+                <button onClick={() => document.getElementById('upload-chat')?.click()} title="Upload Chat" style={{ color: props.lightmode ? "#be185d" : "white" }} className=''>
                     <FaCloudUploadAlt size={28} />
-                </button> */}
+                </button>
+                <input id="upload-chat" type="file" accept='.chat' className='invisible' onChange={onUploadChat} />
+
                 <div className='w-full'></div>
                 <div className='flex gap-5 justify-end'>
 
