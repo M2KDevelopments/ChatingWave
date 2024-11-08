@@ -1,7 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState } from 'react'
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-
 import { FaImage } from 'react-icons/fa6'
 import { IoMdHappy } from 'react-icons/io'
 import { IoSend } from 'react-icons/io5'
@@ -191,7 +188,7 @@ function MessageActions(props: IAction) {
     }
 
     const onDeleteMessage = async (index: number) => {
-        props.setMessages(props.messages.filter((m, i) => i != index));
+        props.setMessages(props.messages.filter((m, i) => m !== null && i != index));
         toast.success('Message removed');
     }
 
@@ -391,56 +388,37 @@ function MessageActions(props: IAction) {
 
             {
                 props.messages.length > 0 ?
-                    <DragDropContext onDragEnd={(dropResult) => console.log(dropResult)}>
-                        <Droppable droppableId="droppable">
-                            {(provided, snapshot) => (
-                                <div
-                                    {...provided.droppableProps} ref={provided.innerRef}
-                                    style={{ background: props.lightmode ? "#d9d8d8" : "#1a2439" }}
-                                    className='flex flex-col gap-2 h-[45vh] p-2 overflow-y-scroll rounded-lg'>
-                                    {props.messages.map((message, index) =>
-                                        <Draggable key={'act' + index} draggableId={message.id} index={index}>
-                                            {(provided, snapshot) => (
-                                                props.lightmode ?
-                                                    <div
-                                                        key={'drag' + index}
-                                                        ref={provided.innerRef}
-                                                        {...provided.draggableProps}
-                                                        {...provided.dragHandleProps}
-                                                        className='cursor-grab flex gap-3 hover:bg-slate-400 duration-300 items-center px-3 py-6 relative'
-                                                    // onMouseEnter={() => props.setHoverIndex(index)} 
-                                                    // onMouseLeave={() => props.setHoverIndex(-1)}
-                                                    >
-                                                        <img src={message.profileImage} className='w-8 h-8 rounded-full' />
-                                                        <span className='pointer-events-none w-full text-wrap text-ellipsis text-slate-900'>{message.text}</span>
-                                                        <span onClick={() => setDialogEmojiReact(message.id)} className='cursor-pointer absolute right-[136px] bottom-2 text-slate-900 font-thin'><IoMdHappy color={message.reactions.length ? " #f59e0b" : undefined} title="React to Message" size={20} /></span>
-                                                        <span onClick={() => setEditMessage(message)} className='cursor-pointer absolute right-24 bottom-2 text-slate-900 font-thin'><AiFillEdit title="Edit Message" size={20} /></span>
-                                                        <span onClick={() => onDeleteMessage(index)} className='cursor-pointer absolute right-14 bottom-2 text-slate-900 font-thin'><AiFillDelete title="Edit Message" size={20} /></span>
-                                                        <span onClick={() => onChangeTime(index, message.time)} className='cursor-pointer absolute right-2 bottom-2 text-slate-900 font-thin'>{message.time}</span>
-                                                    </div>
-                                                    :
-                                                    <div
-                                                        ref={provided.innerRef}
-                                                        {...provided.draggableProps}
-                                                        {...provided.dragHandleProps}
-                                                        key={'act' + index}
-                                                        className='cursor-grab flex gap-3 hover:bg-cyan-950 duration-300 items-center px-3 py-4 relative'
-                                                        onMouseEnter={() => props.setHoverIndex(index)} onMouseLeave={() => props.setHoverIndex(-1)}>
-                                                        <img src={message.profileImage} className='w-8 h-8 rounded-full' />
-                                                        <span className='pointer-events-none w-full text-wrap text-ellipsis text-white '>{message.text}</span>
-                                                        <span onClick={() => setDialogEmojiReact(message.id)} className='cursor-pointer absolute right-[136px] bottom-2 text-white font-thin'><IoMdHappy color={message.reactions.length ? " #f59e0b" : undefined} title="React to Message" size={20} /></span>
-                                                        <span onClick={() => setEditMessage(message)} className='cursor-pointer absolute right-24 bottom-2 text-white font-thin'><AiFillEdit title="Edit Message" size={20} /></span>
-                                                        <span onClick={() => onDeleteMessage(index)} className='cursor-pointer absolute right-14 bottom-2 text-white font-thin'><AiFillDelete title="Edit Message" size={20} /></span>
-                                                        <span onClick={() => onChangeTime(index, message.time)} className='cursor-pointer absolute right-2 bottom-2 text-white font-thin'>{message.time}</span>
-                                                    </div>
-                                            )}
-                                        </Draggable>
-                                    )}
-                                    {provided.placeholder}
+
+                    <div style={{ background: props.lightmode ? "#d9d8d8" : "#1a2439" }}
+                        className='flex flex-col gap-2 h-[45vh] p-2 overflow-y-scroll rounded-lg'>
+                        {props.messages.map((message, index) =>
+
+                            props.lightmode ?
+                                <div className='cursor-grab flex gap-3 hover:bg-slate-400 duration-300 items-center px-3 py-6 relative'
+                                // onMouseEnter={() => props.setHoverIndex(index)} 
+                                // onMouseLeave={() => props.setHoverIndex(-1)}
+                                >
+                                    <img src={message.profileImage} className='w-8 h-8 rounded-full' />
+                                    <span className='pointer-events-none w-full text-wrap text-ellipsis text-slate-900'>{message.text}</span>
+                                    <span onClick={() => setDialogEmojiReact(message.id)} className='cursor-pointer absolute right-[136px] bottom-2 text-slate-900 font-thin'><IoMdHappy color={message.reactions.length ? " #f59e0b" : undefined} title="React to Message" size={20} /></span>
+                                    <span onClick={() => setEditMessage(message)} className='cursor-pointer absolute right-24 bottom-2 text-slate-900 font-thin'><AiFillEdit title="Edit Message" size={20} /></span>
+                                    <span onClick={() => onDeleteMessage(index)} className='cursor-pointer absolute right-14 bottom-2 text-slate-900 font-thin'><AiFillDelete title="Edit Message" size={20} /></span>
+                                    <span onClick={() => onChangeTime(index, message.time)} className='cursor-pointer absolute right-2 bottom-2 text-slate-900 font-thin'>{message.time}</span>
                                 </div>
-                            )}
-                        </Droppable>
-                    </DragDropContext>
+                                :
+                                <div key={'act' + index}
+                                    className='cursor-grab flex gap-3 hover:bg-cyan-950 duration-300 items-center px-3 py-4 relative'
+                                    onMouseEnter={() => props.setHoverIndex(index)} onMouseLeave={() => props.setHoverIndex(-1)}>
+                                    <img src={message.profileImage} className='w-8 h-8 rounded-full' />
+                                    <span className='pointer-events-none w-full text-wrap text-ellipsis text-white '>{message.text}</span>
+                                    <span onClick={() => setDialogEmojiReact(message.id)} className='cursor-pointer absolute right-[136px] bottom-2 text-white font-thin'><IoMdHappy color={message.reactions.length ? " #f59e0b" : undefined} title="React to Message" size={20} /></span>
+                                    <span onClick={() => setEditMessage(message)} className='cursor-pointer absolute right-24 bottom-2 text-white font-thin'><AiFillEdit title="Edit Message" size={20} /></span>
+                                    <span onClick={() => onDeleteMessage(index)} className='cursor-pointer absolute right-14 bottom-2 text-white font-thin'><AiFillDelete title="Edit Message" size={20} /></span>
+                                    <span onClick={() => onChangeTime(index, message.time)} className='cursor-pointer absolute right-2 bottom-2 text-white font-thin'>{message.time}</span>
+                                </div>
+                        )}
+                    </div>
+
                     :
                     <div className='flex flex-col gap-2 h-[400px] p-2 overflow-y-scroll'>
                         <p style={{ color: props.lightmode ? "gray" : "white" }} className='w-full h-full flex flex-col justify-center text-center'>
