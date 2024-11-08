@@ -20,7 +20,7 @@ function FacebookConversation(props: IPhone) {
 
 
     const onRemoveEmoji = (msgIndex: number, index: number) => {
-        props.messages[msgIndex].reactions = props.messages[msgIndex].reactions.filter((r, i) => i != index);
+        props.messages[msgIndex].reactions = props.messages[msgIndex].reactions.filter((r, i) => r != null && i != index);
         props.setMessages([...props.messages]);
     }
 
