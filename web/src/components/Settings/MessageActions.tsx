@@ -21,7 +21,6 @@ import Picker from '@emoji-mart/react'
 import { MdBlock } from 'react-icons/md'
 import { FaCloudDownloadAlt, FaCloudUploadAlt } from 'react-icons/fa'
 import JSZip from 'jszip';
-import ModalTextMessage from '../Modals/ModalTextMessage'
 import { AiFillDelete, AiFillEdit } from 'react-icons/ai'
 const zip = new JSZip();
 const size = 20;
@@ -65,13 +64,26 @@ function MessageActions(props: IAction) {
     const [dialogEmoji, setDialogEmoji] = useState(false);
     const [dialogEmojiReact, setDialogEmojiReact] = useState("");
     const [loading, setLoading] = useState(false);
-    const [editMessage, setEditMessage] = useState({} as IMessage);
 
-    const onUpdateMessage = () => {
-        const index = props.messages.findIndex(m => m.id == editMessage.id);
-        props.messages[index].text = editMessage.text;
+    const onUpdateMessage = async (msg: IMessage) => {
+        const message = await swal({
+            title: `Update the message`,
+            icon: `icon`,
+            content: {
+                element: `textarea`,
+                attributes: {
+                    value: msg.text,
+                    placeholder: "Enter the message here..."
+                }
+            },
+            buttons: ['Cancel', 'Save']
+        });
+
+        if (!message) return;
+
+        const index = props.messages.findIndex(m => m.id == (msg.id || ""));
+        props.messages[index].text = message || "";
         props.setMessages([...props.messages]);
-        setEditMessage({} as IMessage);
     }
 
     useEffect(() => {
@@ -401,7 +413,7 @@ function MessageActions(props: IAction) {
                                     <img src={message.profileImage} className='w-8 h-8 rounded-full' />
                                     <span className='pointer-events-none w-full text-wrap text-ellipsis text-slate-900'>{message.text}</span>
                                     <span onClick={() => setDialogEmojiReact(message.id)} className='cursor-pointer absolute right-[136px] bottom-2 text-slate-900 font-thin'><IoMdHappy color={message.reactions.length ? " #f59e0b" : undefined} title="React to Message" size={20} /></span>
-                                    <span onClick={() => setEditMessage(message)} className='cursor-pointer absolute right-24 bottom-2 text-slate-900 font-thin'><AiFillEdit title="Edit Message" size={20} /></span>
+                                    <span onClick={() => onUpdateMessage(message)} className='cursor-pointer absolute right-24 bottom-2 text-slate-900 font-thin'><AiFillEdit title="Edit Message" size={20} /></span>
                                     <span onClick={() => onDeleteMessage(index)} className='cursor-pointer absolute right-14 bottom-2 text-slate-900 font-thin'><AiFillDelete title="Edit Message" size={20} /></span>
                                     <span onClick={() => onChangeTime(index, message.time)} className='cursor-pointer absolute right-2 bottom-2 text-slate-900 font-thin'>{message.time}</span>
                                 </div>
@@ -412,7 +424,7 @@ function MessageActions(props: IAction) {
                                     <img src={message.profileImage} className='w-8 h-8 rounded-full' />
                                     <span className='pointer-events-none w-full text-wrap text-ellipsis text-white '>{message.text}</span>
                                     <span onClick={() => setDialogEmojiReact(message.id)} className='cursor-pointer absolute right-[136px] bottom-2 text-white font-thin'><IoMdHappy color={message.reactions.length ? " #f59e0b" : undefined} title="React to Message" size={20} /></span>
-                                    <span onClick={() => setEditMessage(message)} className='cursor-pointer absolute right-24 bottom-2 text-white font-thin'><AiFillEdit title="Edit Message" size={20} /></span>
+                                    <span onClick={() => onUpdateMessage(message)} className='cursor-pointer absolute right-24 bottom-2 text-white font-thin'><AiFillEdit title="Edit Message" size={20} /></span>
                                     <span onClick={() => onDeleteMessage(index)} className='cursor-pointer absolute right-14 bottom-2 text-white font-thin'><AiFillDelete title="Edit Message" size={20} /></span>
                                     <span onClick={() => onChangeTime(index, message.time)} className='cursor-pointer absolute right-2 bottom-2 text-white font-thin'>{message.time}</span>
                                 </div>
@@ -459,18 +471,6 @@ function MessageActions(props: IAction) {
                 </button>
             </form>
 
-            <dialog style={{ visibility: editMessage.id ? 'visible' : "hidden" }} className='w-screen h-screen flex flex-col justify-center items-center rounded-xl p-4 absolute top-0 bg-[#2f2e2ead] backdrop-blur-xl'>
-                <div className='min-w-1/2 h-1/3 bg-[#230a2e1a] flex flex-col gap-2 rounded-2xl p-2 justify-center'>
-                    <textarea maxLength={500} value={editMessage ? editMessage.text : ""} onChange={(e) => setEditMessage({ ...editMessage, text: e.target.value })} id="edit-message" className='rounded-md w-[400px] h-full bg-white p-2' placeholder='Write Your message here...' />
-                    <div className='flex'>
-                        <button onClick={() => setEditMessage({} as IMessage)} className='w-fit bg-none text-pink-600 mx-2 px-4 py-2 mt-8 rounded-lg cursor-pointer hover:bg-[#f3f1f12b] duration-200'>Cancel</button>
-                        <button onClick={onUpdateMessage} className='w-fit bg-none text-cyan-300 mx-2 px-4 py-2 mt-8 rounded-lg cursor-pointer hover:bg-[#f3f1f12b] duration-200'>Update Message</button>
-                    </div>
-                </div>
-
-            </dialog>
-
-            <ModalTextMessage editMessage={editMessage} messages={props.messages} setMessages={props.setMessages} setEditMessage={setEditMessage} />
 
             {dialogEmoji ? <dialog onClick={() => setDialogEmoji(false)} style={{ visibility: dialogEmoji ? 'visible' : "hidden" }} className='w-screen h-screen flex flex-col justify-center items-center rounded-xl p-4 absolute top-0 bg-[#2f2e2ead] backdrop-blur-xl'>
                 <Picker data={EmojiData} onEmojiSelect={onEmojiSelect} />

@@ -8,7 +8,12 @@ import { useMemo } from 'react';
 const heightPercentage = 83 / 100.0;
 const replyMessageHeightPercentage = 13 / 100.0;
 
-function InstagramConversation(props: IPhone) {
+interface IConvo extends IPhone {
+    onUpdateMessage: (message: IMessage) => void;
+}
+
+
+function InstagramConversation(props: IConvo) {
 
     const fontSize = 21 * (props.height / 1280);
 

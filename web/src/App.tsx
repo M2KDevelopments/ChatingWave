@@ -36,7 +36,6 @@ function App() {
   const [chatName, setChatName] = useState("Emily Banks");
   const [chatImage, setChatImage] = useState(emily);
   const [lightmode, setLightMode] = useState(false);
-  const [online, setOnline] = useState(true);
   const [platform, setPlatform] = useState("whatsapp");
   const [size, setSize] = useState({ width: 480, height: 854 });
 
@@ -60,13 +59,22 @@ function App() {
   useEffect(() => {
     //Defaults
     setResolution("720");
-    setOnline(true);
     setIndexPerson(0);
     setPeople([{ name: "Emily Banks", image: emily }])
     setMessages(MESSAGES); // Set Messages Default
 
-    // Todo Automatically adjust as the window resizes
-    setSize({ width: 480, height: 854 });
+    // Automatically adjust as the window resizes
+    function handleResize() {
+      const percentage = 25;
+      const p = percentage / 100.0;
+      const w = document.documentElement.getBoundingClientRect().width * p;
+      const h = document.documentElement.getBoundingClientRect().width * p * (1920 / 1080);
+      setSize({ width: parseInt(w.toString()), height: parseInt(h.toString()) });
+      console.log({ width: parseInt(w.toString()), height: parseInt(h.toString()) })
+    }
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, [])
 
 
@@ -89,7 +97,7 @@ function App() {
               lightmode={lightmode}
               messages={playing ? templateMessages : messages}
               setMessages={setMessages}
-              online={online}
+              online={true}
               scrollY={previewScrollY}
               noScrollBar={playing}
               hoverIndex={hoverIndex}

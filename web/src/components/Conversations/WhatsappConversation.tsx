@@ -4,17 +4,18 @@ import bgWA from '../../assets/bg-whatsapp.png';
 import bgWADark from '../../assets/bg-whatsapp-dark.png';
 import { IoCheckmarkDoneSharp } from "react-icons/io5";
 import { IoCheckmarkOutline } from "react-icons/io5";
-import { useMemo, useState } from 'react';
-import ModalTextMessage from '../Modals/ModalTextMessage';
+import { useMemo } from 'react';
 
 const heightPercentage = 83 / 100.0;
 const replyMessageHeightPercentage = 13 / 100.0;
 
+interface IConvo extends IPhone {
+    onUpdateMessage: (message: IMessage) => void;
+}
 
-function WhatsappConversation(props: IPhone) {
+function WhatsappConversation(props: IConvo) {
 
     const fontSize = 21 * (props.height / 1280);
-    const [editMessage, setEditMessage] = useState({} as IMessage);
 
 
     const messageMap = useMemo(() => {
@@ -34,7 +35,7 @@ function WhatsappConversation(props: IPhone) {
             {
                 props.messages.map((msg, index) =>
                     <div
-                        onDoubleClick={() => setEditMessage(msg)}
+                        onDoubleClick={() => props.onUpdateMessage(msg)}
                         style={{
                             marginTop: index > 0 && props.messages[index - 1].me != msg.me ? 20 : 0,
                             background: props.lightmode ? (msg.me ? "#d9fdd3" : "white") : (msg.me ? "#154c37" : "#1f2c34"),
@@ -110,7 +111,6 @@ function WhatsappConversation(props: IPhone) {
                     </div>
                 )
             }
-            <ModalTextMessage editMessage={editMessage} messages={props.messages} setMessages={props.setMessages} setEditMessage={setEditMessage} />
 
         </div>
     )
