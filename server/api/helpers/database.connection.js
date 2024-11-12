@@ -17,4 +17,5 @@ exports.startMongoDB = (production = false) => {
         `mongodb://127.0.0.1:27017/${databasename}?retryWrites=true&w=majority`;
     mongoose.connect(connection, {});
     mongoose.Promise = global.Promise;
+    console.log('✅✅', databasename, 'Datbase Connection ✔✔')
 }
