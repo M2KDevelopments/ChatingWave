@@ -1,7 +1,6 @@
 
 
 import { CiLight, CiDark } from "react-icons/ci";
-
 import Switch from "react-switch";
 
 
@@ -17,7 +16,8 @@ function AppTheme(props: IVisuals) {
 
     return (
         <div style={{ borderColor: props.lightmode ? "#bfcbd3" : "#4b5563" }} className='flex gap-3 w-full p-3 border-2 rounded-lg'>
-            <div className="w-2/5">
+            <div className="w-2/5 flex gap-3">
+                <img src="/logo.png" alt="Chating Wave" width={30} height={30} />
                 <span className="text-2xl text-slate-400 font-bold">Chating Wave</span>
             </div>
             <div className="w-full"></div>

@@ -70,7 +70,7 @@ function App() {
       const w = document.documentElement.getBoundingClientRect().width * p;
       const h = document.documentElement.getBoundingClientRect().width * p * (1920 / 1080);
       setSize({ width: parseInt(w.toString()), height: parseInt(h.toString()) });
-      console.log({ width: parseInt(w.toString()), height: parseInt(h.toString()) })
+      
     }
     handleResize();
     window.addEventListener('resize', handleResize);
@@ -109,11 +109,11 @@ function App() {
         {/* Settings */}
         <section style={{ background: lightmode ? "#e1e1e1" : "#111827" }} className="w-3/5 bg-gradient-to-tr flex flex-col gap-3 items-center mt-4">
 
-
           <AppTheme
             lightmode={lightmode}
             setLightMode={setLightMode}
           />
+
 
           <BarStatus
             lightmode={lightmode}
