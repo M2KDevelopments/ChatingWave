@@ -1,0 +1,41 @@
+{
+  "name": "Chating Wave",
+  "short_name": "Chating Wave",
+  "version": "1.0.0",
+  "description": "Create and share WhatsApp and Facebook Messenger-like conversations with stunning screenshots or videos!",
+  "manifest_version": 3,
+  "minimum_chrome_version": "88",
+  "homepage_url": "https://app.chatingwave.com",
+  "action": {
+    "default_title": "Chating Wave",
+    "default_icon": {
+      "16": "logo.png",
+      "32": "logo.png",
+      "48": "logo.png",
+      "128": "logo.png"
+    }
+  },
+  "permissions": [],
+  "icons": {
+    "16": "logo.png",
+    "32": "logo.png",
+    "48": "logo.png"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  },
+  "content_scripts": [],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "/icons/*"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ]
+}
