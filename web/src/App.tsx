@@ -164,7 +164,7 @@ function App() {
             setResolution={setResolution}
           />
 
-          {/* Google Adsense */}
+          {/* Support Developer */}
           <Ad />
 
         </section>
