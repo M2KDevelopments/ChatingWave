@@ -66,7 +66,8 @@ function App() {
 
     // Automatically adjust as the window resizes
     function handleResize() {
-      const percentage = 25;
+      const screenWidth = document.documentElement.getBoundingClientRect().width;
+      const percentage = screenWidth <= 800 ? 90 : 25;
       const p = percentage / 100.0;
       const w = document.documentElement.getBoundingClientRect().width * p;
       const h = document.documentElement.getBoundingClientRect().width * p * (1920 / 1080);
@@ -77,6 +78,90 @@ function App() {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, [])
+
+
+  // Mobile Version
+  // if (size.width <= 800) {
+  //   return (
+  //     <main className="overflow-hidden">
+  //       <div style={{ background: lightmode ? "#f7f7f7" : "#111827" }} className="flex w-screen h-screen overflow-hidden relative z-10">
+
+  //         <section className="w-full flex justify-center flex-col m-auto align-middle p-4">
+
+  //           <AppTheme
+  //             lightmode={lightmode}
+  //             setLightMode={setLightMode}
+  //             platform={platform}
+  //             setPlatform={setPlatform}
+  //           />
+
+
+  //           <BarStatus
+  //             chatImage={chatImage}
+  //             chatName={chatName}
+  //             setChatImage={setChatImage}
+  //             setChatName={setChatName}
+  //             setMessages={setMessages}
+  //             lightmode={lightmode}
+  //             people={people}
+  //             indexPerson={indexPerson}
+  //             loading={loading}
+  //             messages={messages}
+  //             setPeople={setPeople}
+  //             setIndexPerson={setIndexPerson}
+  //           />
+
+
+  //           <div className="shadow-2xl shadow-cyan-600">
+  //             <Phone
+  //               id="preview"
+  //               fullscreen={true}
+  //               name={chatName}
+  //               image={chatImage}
+  //               width={size.width}
+  //               height={size.height}
+  //               platform={platform}
+  //               lightmode={lightmode}
+  //               messages={playing ? templateMessages : messages}
+  //               setMessages={setMessages}
+  //               online={true}
+  //               scrollY={previewScrollY}
+  //               noScrollBar={playing}
+  //               hoverIndex={hoverIndex}
+  //               setHoverIndex={setHoverIndex}
+  //             />
+  //           </div>
+
+
+  //         </section>
+
+
+  //         {/* Display Phone for Images and Videos */}
+  //         {/* <div className="fixed top-0 left-0 w-fit h-fit">
+  //           <Phone
+  //             id="phone"
+  //             fullscreen={false}
+  //             name={chatName}
+  //             image={chatImage}
+  //             width={parseInt(resolution)}
+  //             height={resolutions.get(resolution)!}
+  //             platform={platform}
+  //             lightmode={lightmode}
+  //             messages={playing ? templateMessages : messages}
+  //             setMessages={setMessages}
+  //             online={true}
+  //             scrollY={phoneScrollY}
+  //             noScrollBar={true}
+  //             hoverIndex={-1}
+  //             setHoverIndex={setHoverIndex}
+  //           />
+  //         </div> */}
+
+  //         <ToastContainer />
+  //       </div>
+  //     </main>
+  //   )
+  // }
 
 
   return (
@@ -90,6 +175,7 @@ function App() {
           <div className="shadow-2xl shadow-cyan-600">
             <Phone
               id="preview"
+              fullscreen={false}
               name={chatName}
               image={chatImage}
               width={size.width}
@@ -175,6 +261,7 @@ function App() {
       <div className="fixed top-0 left-0 w-fit h-fit">
         <Phone
           id="phone"
+          fullscreen={false}
           name={chatName}
           image={chatImage}
           width={parseInt(resolution)}

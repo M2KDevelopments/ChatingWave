@@ -9,7 +9,6 @@ const styles = {
     borderWidth: 5,
     borderColor: "lightgray",
     borderRadius: 8,
-
 } as React.CSSProperties
 
 function Phone(props: IPhone) {

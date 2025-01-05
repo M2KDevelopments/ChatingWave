@@ -26,6 +26,8 @@ export interface IPhone {
     scrollY: number,
     noScrollBar: boolean,
 
+    fullscreen: boolean,
+
     //function
     setMessages: (messages: Array<IMessage>) => void,
     hoverIndex: number,
