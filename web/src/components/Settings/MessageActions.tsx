@@ -4,27 +4,13 @@ import { IoMdHappy } from 'react-icons/io'
 import { IoSend } from 'react-icons/io5'
 import { IMessage } from '../../interfaces/message'
 import { IPerson } from '../../interfaces/person'
-// import {FaMicrophoneLines} from 'react-icons/fa6'
-// import { MdGif } from "react-icons/md";
-// import { MdRecordVoiceOver } from "react-icons/md";
-import { FaSquareFacebook } from "react-icons/fa6";
-import { FaSquareWhatsapp } from "react-icons/fa6";
-// import { FaSquareXTwitter } from "react-icons/fa6";
-// import { FaSquareInstagram } from "react-icons/fa6";
-// import { FaTelegram } from "react-icons/fa6";
-// import { AiFillTikTok } from "react-icons/ai";
 import emily from '../../assets/emily.jpg';
 import IMAGES from '../../assets/images.json';
 import { toast } from 'react-toastify'
 import EmojiData from '@emoji-mart/data'
 import Picker from '@emoji-mart/react'
-import { MdBlock } from 'react-icons/md'
-import { FaCloudDownloadAlt, FaCloudUploadAlt } from 'react-icons/fa'
-import JSZip from 'jszip';
 import { AiFillDelete, AiFillEdit } from 'react-icons/ai'
-const zip = new JSZip();
-const size = 20;
-
+import { Reorder } from 'framer-motion'
 
 interface IAction {
     lightmode: boolean,
@@ -63,24 +49,10 @@ function MessageActions(props: IAction) {
     const [dialog, setDialog] = useState(false);
     const [dialogEmoji, setDialogEmoji] = useState(false);
     const [dialogEmojiReact, setDialogEmojiReact] = useState("");
-    const [loading, setLoading] = useState(false);
 
     const onUpdateMessage = async (msg: IMessage) => {
-        const message = await swal({
-            title: `Update the message`,
-            icon: `icon`,
-            content: {
-                element: `textarea`,
-                attributes: {
-                    value: msg.text,
-                    placeholder: "Enter the message here..."
-                }
-            },
-            buttons: ['Cancel', 'Save']
-        });
-
+        const message = window.prompt('Update the message', msg.text);
         if (!message) return;
-
         const index = props.messages.findIndex(m => m.id == (msg.id || ""));
         props.messages[index].text = message || "";
         props.setMessages([...props.messages]);
@@ -205,241 +177,57 @@ function MessageActions(props: IAction) {
     }
 
 
-    const onClear = async () => {
-        const result = await swal({
-            title: 'Clear Chat',
-            text: `Are you sure you want to clear this chat?`,
-            icon: 'info',
-            buttons: ['No', 'Yes']
-        });
-        if (!result) return;
-        props.setMessages([]);
-    }
-
-    const onDownloadChat = async () => {
-
-
-        if (loading) return;
-
-        const name = await swal({
-            title: 'Download Chat',
-            text: `Enter the name of this chat?`,
-            icon: 'info',
-            content: { element: 'input' },
-            buttons: ['No', 'Yes']
-        });
-        if (!name) return;
-
-
-        setLoading(true);
-
-        function loadImage(url: string): Promise<HTMLImageElement> {
-            return new Promise((resolve) => {
-                const img = new Image();
-                img.onload = () => resolve(img);
-                img.crossOrigin = "anonymous";
-                img.src = url;
-            });
-        }
-        function getBase64Image(img: HTMLImageElement) {
-            const canvas = document.createElement("canvas");
-            canvas.width = img.width;
-            canvas.height = img.height;
-            const ctx = canvas.getContext("2d");
-            ctx?.drawImage(img, 0, 0);
-            const dataURL = canvas.toDataURL("image/png");
-            return dataURL?.replace(/^data:image\/?[A-z]*;base64,/, '');
-        }
-
-        // load images
-        const images = zip.folder("images");
-        for (const message of props.messages) {
-            if (message.image) {
-                const img = await loadImage(message.image);
-                const base64 = getBase64Image(img);
-                images?.file(`${message.id}.png`, base64, { base64: true });
-            }
-        }
-        const profiles = zip.folder("profiles");
-        for (const message of props.messages) {
-            if (message.profileImage) {
-                const img = await loadImage(message.profileImage);
-                const base64 = getBase64Image(img);
-                profiles?.file(`${message.id}.png`, base64, { base64: true });
-            }
-        }
-
-        const peopleFolder = zip.folder("people");
-        for (const index in props.people) {
-            const person = props.people[index];
-            if (person.image) {
-                const img = await loadImage(person.image);
-                const base64 = getBase64Image(img);
-                peopleFolder?.file(`${index}.png`, base64, { base64: true });
-            }
-        }
-
-        const chatimg = await loadImage(props.chatImage);
-        const chatbase64 = getBase64Image(chatimg);
-        zip?.file(`chatimage.png`, chatbase64, { base64: true });
-        zip.file('chat.json', JSON.stringify({
-            chatName: props.chatName,
-            people: props.people.map(person => {
-                return { name: person.name }
-            }),
-            messages: JSON.stringify(props.messages.map(msg => {
-                return { ...msg, image: "", profileImage: "" }
-            }))
-        }));
-
-        const content = await zip.generateAsync({ type: "blob" });
-
-        // Download Chat File
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(content);
-        a.download = `${name}.chat`;
-        a.click();
-        a.remove();
-
-        setLoading(false);
-        toast.success('Downloaded Chat File')
-    }
-
-
-
-
-
-    // https://www.youtube.com/watch?v=serIZm6NJDg
-    // https://stackoverflow.com/questions/39322964/extracting-zipped-files-using-jszip-in-javascript
-    const onUploadChat = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files) {
-            const file = e.target.files[0];
-            const content = await zip.loadAsync(file)
-            const filenames = Object.keys(content.files);
-
-            const strjson = await content.files['chat.json'].async('string');
-            const chatimageblob = await content.files['chatimage.png'].async('blob');
-            const chatImage = URL.createObjectURL(chatimageblob);
-            const chatjson = JSON.parse(strjson);
-            const chatName = chatjson.chatName;
-            if (typeof chatjson.messages == 'string') {
-                chatjson.messages = JSON.parse(chatjson.messages);
-            }
-            for (const filename of filenames) {
-                const blob = await content.files[filename].async('blob');
-
-                // These are your file contents
-                if (filename.includes('.png')) {
-                    const image = URL.createObjectURL(blob);
-
-                    if (filename.includes("images")) {
-                        const i = filename.replace('.png', '').replace('images', '').replace('/', '')
-                        const msgIndex = chatjson.messages.findIndex((m: IMessage) => m.id == i);
-                        chatjson.messages[msgIndex].image = image;
-                    } else if (filename.includes("profiles")) {
-                        const i = filename.replace('.png', '').replace('profiles', '').replace('/', '')
-                        const msgIndex = chatjson.messages.findIndex((m: IMessage) => m.id == i);
-                        chatjson.messages[msgIndex].profileImage = image;
-                    } else if (filename.includes("people")) {
-                        const i = filename.replace('.png', '').replace('people', '').replace('/', '')
-                        const personIndex = parseInt(i);
-                        chatjson.people[personIndex].image = image;
-                    }
-                }
-            }
-
-            props.setChatName(chatName);
-            props.setChatImage(chatImage);
-            props.setMessages(chatjson.messages)
-            props.setPeople(chatjson.people);
-            toast.success('Chat Loaded');
-        }
-    }
-
     return (
         <div style={{ borderColor: props.lightmode ? "#bfcbd3" : "#4b5563" }} className='w-full p-2 border-2 rounded-md flex flex-col'>
+            <Reorder.Group values={props.messages} onReorder={props.setMessages}>
+                {
+                    props.messages.length > 0 ?
+                        <div style={{ background: props.lightmode ? "#f3f5f9" : "#1a2439" }}
+                            className='flex flex-col gap-2 h-[40vh] p-2 overflow-y-scroll rounded-lg'>
+                            {props.messages.map((message, index) =>
 
-            <div className='flex gap-3 hover:bg-gray-400 duration-300  items-center p-3 relative'>
-                <img src={props.chatImage} className='w-12 h-12 rounded-full cursor-pointer' onClick={() => setDialog(true)} />
-                <input maxLength={20} disabled={props.loading || loading} className='border-2 h-10 border-blue-200 w-32 outline-none font-thin text-gray-600 rounded-full px-2 focus:border-gray-600' value={props.chatName} onChange={e => props.setChatName(e.target.value)} placeholder='Chat Name' />
-                <button disabled={props.loading || loading} onClick={onClear} title="Clear Chat" style={{ color: props.lightmode ? "#b91c1c" : "white" }} className=''>
-                    <MdBlock size={28} />
-                </button>
-                <button disabled={props.loading || loading} onClick={onDownloadChat} title="Download Chat" style={{ color: props.lightmode ? "#be185d" : "white" }} className=''>
-                    <FaCloudDownloadAlt size={28} />
-                </button>
-                <button onClick={() => document.getElementById('upload-chat')?.click()} title="Upload Chat" style={{ color: props.lightmode ? "#be185d" : "white" }} className=''>
-                    <FaCloudUploadAlt size={28} />
-                </button>
-                <input id="upload-chat" type="file" accept='.chat' className='invisible' onChange={onUploadChat} />
+                                props.lightmode ?
+                                    <Reorder.Item value={message} key={index}>
+                                        <div className='cursor-grab flex gap-3 hover:bg-slate-400 duration-300 items-center px-2 py-3 relative rounded-md'
+                                            onMouseEnter={() => props.setHoverIndex(index)}
+                                            onMouseLeave={() => props.setHoverIndex(-1)}
+                                        >
+                                            <img src={message.profileImage} className='w-8 h-8 rounded-full' />
+                                            <span className='pointer-events-none w-full text-wrap text-ellipsis text-slate-900'><b>{message.name}:</b> {message.text}</span>
+                                            <span onClick={() => setDialogEmojiReact(message.id)} className='cursor-pointer absolute right-[136px] bottom-2 text-slate-900 font-thin p-1 rounded-full bg-none hover:bg-slate-300'><IoMdHappy color={message.reactions.length ? "#0891b2" : undefined} title="React to Message" size={20} /></span>
+                                            <span onClick={() => onUpdateMessage(message)} className='cursor-pointer absolute right-24 bottom-2 text-slate-900 font-thin p-1 rounded-full bg-none hover:bg-slate-300'><AiFillEdit title="Edit Message" size={20} /></span>
+                                            <span onClick={() => onDeleteMessage(index)} className='cursor-pointer absolute right-14 bottom-2 text-slate-900 font-thin p-1 rounded-full bg-none hover:bg-slate-300'><AiFillDelete title="Edit Message" size={20} /></span>
+                                            <span onClick={() => onChangeTime(index, message.time)} className='cursor-pointer absolute right-2 bottom-2 text-slate-900 font-thin p-1 rounded-md bg-none hover:bg-slate-300'>{message.time}</span>
+                                        </div>
+                                    </Reorder.Item>
 
-                <div className='w-full'></div>
-                <div className='flex gap-5 justify-end'>
+                                    :
 
-                    <div title="Whatsapp" onClick={() => props.setPlatform('whatsapp')} className='p-2 bg-white rounded-full w-fit h-fit cursor-pointer'>
-                        <FaSquareWhatsapp size={size} color={props.platform == 'whatsapp' ? "#25D366" : "grey"} />
-                    </div>
-                    <div title="Facebook" onClick={() => props.setPlatform('facebook')} className='p-2 bg-white rounded-full w-fit h-fit cursor-pointer'>
-                        <FaSquareFacebook size={size} color={props.platform == 'facebook' ? "#1877F2" : "grey"} />
-                    </div>
-                    {/* <div title="Twitter" onClick={() => props.setPlatform('twitter')} className='p-2 bg-white rounded-full w-fit h-fit cursor-pointer'>
-                        <FaSquareXTwitter size={size} color={props.platform == 'twitter' ? undefined : "grey"} />
-                    </div>
-                    <div title="Instagram" onClick={() => props.setPlatform('instagram')} className='p-2 bg-white rounded-full w-fit h-fit cursor-pointer'>
-                        <FaSquareInstagram size={size} color={props.platform == 'instagram' ? "purple" : "grey"} />
-                    </div>
-                    <div title="Telegram" onClick={() => props.setPlatform('telegram')} className='p-2 bg-white rounded-full w-fit h-fit cursor-pointer'>
-                        <FaTelegram size={size} color={props.platform == 'telegram' ? "#24A1DE" : "grey"} />
-                    </div>
-                    <div title="Tiktok" onClick={() => props.setPlatform('tiktok')} className='p-2 bg-white rounded-full w-fit h-fit cursor-pointer'>
-                        <AiFillTikTok size={size} color={props.platform == 'tiktok' ? undefined : "grey"} />
-                    </div> */}
-                </div>
+                                    <Reorder.Item value={message} key={index}>
+                                        <div className='cursor-grab flex gap-3 hover:bg-cyan-950 duration-300 items-center px-2 py-3 relative rounded-md'
+                                            onMouseEnter={() => props.setHoverIndex(index)}
+                                            onMouseLeave={() => props.setHoverIndex(-1)}
+                                        >
+                                            <img src={message.profileImage} className='w-8 h-8 rounded-full' />
+                                            <span className='pointer-events-none w-full text-wrap text-ellipsis text-white'><b>{message.name}:</b> {message.text}</span>
+                                            <span onClick={() => setDialogEmojiReact(message.id)} className='cursor-pointer absolute right-[136px] bottom-2 text-white font-thin p-1 rounded-full bg-none hover:bg-slate-300'><IoMdHappy color={message.reactions.length ? " #f59e0b" : undefined} title="React to Message" size={20} /></span>
+                                            <span onClick={() => onUpdateMessage(message)} className='cursor-pointer absolute right-24 bottom-2 text-white font-thin p-1 rounded-full bg-none hover:bg-slate-300'><AiFillEdit title="Edit Message" size={20} /></span>
+                                            <span onClick={() => onDeleteMessage(index)} className='cursor-pointer absolute right-14 bottom-2 text-white font-thin p-1 rounded-full bg-none hover:bg-slate-300'><AiFillDelete title="Edit Message" size={20} /></span>
+                                            <span onClick={() => onChangeTime(index, message.time)} className='cursor-pointer absolute right-2 bottom-2 text-white font-thin p-1 rounded-md bg-none hover:bg-slate-300'>{message.time}</span>
+                                        </div>
+                                    </Reorder.Item>
+                            )}
+                        </div>
 
-            </div>
-
-            {
-                props.messages.length > 0 ?
-
-                    <div style={{ background: props.lightmode ? "#d9d8d8" : "#1a2439" }}
-                        className='flex flex-col gap-2 h-[45vh] p-2 overflow-y-scroll rounded-lg'>
-                        {props.messages.map((message, index) =>
-
-                            props.lightmode ?
-                                <div className='cursor-grab flex gap-3 hover:bg-slate-400 duration-300 items-center px-3 py-6 relative'
-                                // onMouseEnter={() => props.setHoverIndex(index)} 
-                                // onMouseLeave={() => props.setHoverIndex(-1)}
-                                >
-                                    <img src={message.profileImage} className='w-8 h-8 rounded-full' />
-                                    <span className='pointer-events-none w-full text-wrap text-ellipsis text-slate-900'>{message.text}</span>
-                                    <span onClick={() => setDialogEmojiReact(message.id)} className='cursor-pointer absolute right-[136px] bottom-2 text-slate-900 font-thin'><IoMdHappy color={message.reactions.length ? " #f59e0b" : undefined} title="React to Message" size={20} /></span>
-                                    <span onClick={() => onUpdateMessage(message)} className='cursor-pointer absolute right-24 bottom-2 text-slate-900 font-thin'><AiFillEdit title="Edit Message" size={20} /></span>
-                                    <span onClick={() => onDeleteMessage(index)} className='cursor-pointer absolute right-14 bottom-2 text-slate-900 font-thin'><AiFillDelete title="Edit Message" size={20} /></span>
-                                    <span onClick={() => onChangeTime(index, message.time)} className='cursor-pointer absolute right-2 bottom-2 text-slate-900 font-thin'>{message.time}</span>
-                                </div>
-                                :
-                                <div key={'act' + index}
-                                    className='cursor-grab flex gap-3 hover:bg-cyan-950 duration-300 items-center px-3 py-4 relative'
-                                    onMouseEnter={() => props.setHoverIndex(index)} onMouseLeave={() => props.setHoverIndex(-1)}>
-                                    <img src={message.profileImage} className='w-8 h-8 rounded-full' />
-                                    <span className='pointer-events-none w-full text-wrap text-ellipsis text-white '>{message.text}</span>
-                                    <span onClick={() => setDialogEmojiReact(message.id)} className='cursor-pointer absolute right-[136px] bottom-2 text-white font-thin'><IoMdHappy color={message.reactions.length ? " #f59e0b" : undefined} title="React to Message" size={20} /></span>
-                                    <span onClick={() => onUpdateMessage(message)} className='cursor-pointer absolute right-24 bottom-2 text-white font-thin'><AiFillEdit title="Edit Message" size={20} /></span>
-                                    <span onClick={() => onDeleteMessage(index)} className='cursor-pointer absolute right-14 bottom-2 text-white font-thin'><AiFillDelete title="Edit Message" size={20} /></span>
-                                    <span onClick={() => onChangeTime(index, message.time)} className='cursor-pointer absolute right-2 bottom-2 text-white font-thin'>{message.time}</span>
-                                </div>
-                        )}
-                    </div>
-
-                    :
-                    <div className='flex flex-col gap-2 h-[400px] p-2 overflow-y-scroll'>
-                        <p style={{ color: props.lightmode ? "gray" : "white" }} className='w-full h-full flex flex-col justify-center text-center'>
-                            <span className='text-5xl'>No Chat</span>
-                            <span className='text-2xl italic'></span>
-                        </p>
-                    </div>
-            }
-
+                        :
+                        <div className='flex flex-col gap-2 h-[400px] p-2 overflow-y-scroll'>
+                            <p style={{ color: props.lightmode ? "gray" : "white" }} className='w-full h-full flex flex-col justify-center text-center'>
+                                <span className='text-5xl'>No Chat</span>
+                                <span className='text-2xl italic'></span>
+                            </p>
+                        </div>
+                }
+            </Reorder.Group>
 
             <input id="image" onChange={onImageUpload} disabled={props.loading} type="file" accept='image/*' className='invisible border-2 h-10 border-blue-200 w-full outline-none font-thin text-gray-600 rounded-full px-5 focus:border-gray-600' placeholder='Image URL' />
 

@@ -18,6 +18,7 @@ import SaveMessages from "./components/Settings/SaveMessages";
 // Assets
 import { MESSAGES } from './assets/messages'
 import emily from './assets/emily.jpg';
+import Ad from "./components/Settings/Ad";
 
 // Export Resolutions
 const resolutions = new Map<string, number>();
@@ -26,14 +27,14 @@ resolutions.set('480', 854)
 resolutions.set('720', 1280)
 resolutions.set('1080', 1920)
 resolutions.set('1440', 2560)
-resolutions.set('2160', 3840)
+// resolutions.set('2160', 3840)
 
 function App() {
 
   const [loading, setLoading] = useState(false);
 
   // Phone Settings
-  const [chatName, setChatName] = useState("Emily Banks");
+  const [chatName, setChatName] = useState("Emily (CW)");
   const [chatImage, setChatImage] = useState(emily);
   const [lightmode, setLightMode] = useState(false);
   const [platform, setPlatform] = useState("whatsapp");
@@ -44,7 +45,7 @@ function App() {
 
   // Messages
   const [messages, setMessages] = useState([] as Array<IMessage>)
-  const [people, setPeople] = useState([{ name: "Emily Banks", image: emily }] as Array<IPerson>);
+  const [people, setPeople] = useState([{ name: "Emily (CW)", image: emily }] as Array<IPerson>);
   const [indexPerson, setIndexPerson] = useState(0);
 
   // Preview Settings
@@ -60,7 +61,7 @@ function App() {
     //Defaults
     setResolution("720");
     setIndexPerson(0);
-    setPeople([{ name: "Emily Banks", image: emily }])
+    setPeople([{ name: "Emily (CW)", image: emily }])
     setMessages(MESSAGES); // Set Messages Default
 
     // Automatically adjust as the window resizes
@@ -70,7 +71,7 @@ function App() {
       const w = document.documentElement.getBoundingClientRect().width * p;
       const h = document.documentElement.getBoundingClientRect().width * p * (1920 / 1080);
       setSize({ width: parseInt(w.toString()), height: parseInt(h.toString()) });
-      
+
     }
     handleResize();
     window.addEventListener('resize', handleResize);
@@ -82,7 +83,7 @@ function App() {
     <main className="overflow-hidden">
 
 
-      <div style={{ background: lightmode ? "#e1e1e1" : "#111827" }} className="flex w-screen h-screen overflow-hidden relative z-10">
+      <div style={{ background: lightmode ? "#f7f7f7" : "#111827" }} className="flex w-screen h-screen overflow-hidden relative z-10">
 
         {/* Preview UI */}
         <section className="w-2/5 flex justify-center flex-col m-auto items-center align-middle p-4">
@@ -107,15 +108,22 @@ function App() {
         </section>
 
         {/* Settings */}
-        <section style={{ background: lightmode ? "#e1e1e1" : "#111827" }} className="w-3/5 bg-gradient-to-tr flex flex-col gap-3 items-center mt-4">
+        <section style={{ background: lightmode ? "#f7f7f7" : "#111827" }} className="w-3/5 bg-gradient-to-tr flex flex-col gap-3 items-center mt-2">
 
           <AppTheme
             lightmode={lightmode}
             setLightMode={setLightMode}
+            platform={platform}
+            setPlatform={setPlatform}
           />
 
 
           <BarStatus
+            chatImage={chatImage}
+            chatName={chatName}
+            setChatImage={setChatImage}
+            setChatName={setChatName}
+            setMessages={setMessages}
             lightmode={lightmode}
             people={people}
             indexPerson={indexPerson}
@@ -156,6 +164,8 @@ function App() {
             setResolution={setResolution}
           />
 
+          {/* Google Adsense */}
+          <Ad />
 
         </section>
 

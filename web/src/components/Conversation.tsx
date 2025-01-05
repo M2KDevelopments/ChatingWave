@@ -10,21 +10,8 @@ function Conversation(props: IPhone) {
 
 
     const onUpdateMessage = async (msg: IMessage) => {
-        const message = await swal({
-            title: `Update the message`,
-            icon: `icon`,
-            content: {
-                element: `textarea`,
-                attributes: {
-                    value: msg.text,
-                    placeholder: "Enter the message here..."
-                }
-            },
-            buttons: ['Cancel', 'Save']
-        });
-
+        const message = window.prompt('Update the message', msg.text);
         if (!message) return;
-
         const index = props.messages.findIndex(m => m.id == (msg.id || ""));
         props.messages[index].text = message || "";
         props.setMessages([...props.messages]);

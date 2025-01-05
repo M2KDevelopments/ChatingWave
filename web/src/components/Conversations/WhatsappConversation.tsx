@@ -31,6 +31,7 @@ function WhatsappConversation(props: IConvo) {
     }
 
     return (
+        
         <div id={`conversation-${props.id}`} aria-label="conversation" className='w-full flex flex-col gap-2 p-3' style={{ overflowY: props.noScrollBar ? "hidden" : "scroll", height: props.height * heightPercentage, backgroundColor: props.lightmode ? "#efeae2" : "#0b141b", backgroundImage: props.lightmode ? `url('${bgWA}')` : `url('${bgWADark}')`, }}>
             {
                 props.messages.map((msg, index) =>

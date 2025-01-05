@@ -1,7 +1,6 @@
 import { FaImage, FaPlay, FaStop, FaVideo } from "react-icons/fa6"
 import domtoimage from 'dom-to-image';
 import { toast } from "react-toastify";
-
 // FFMPEG - https://ffmpegwasm.netlify.app/docs/getting-started/usage
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { fetchFile, toBlobURL } from '@ffmpeg/util';
@@ -33,7 +32,7 @@ resolutions.set('480', '480p')
 resolutions.set('720', '720p')
 resolutions.set('1080', '1080p')
 resolutions.set('1440', 'HD 2k')
-resolutions.set('2160', 'HD 4k')
+// resolutions.set('2160', 'HD 4k')
 
 function SaveMessages(props: IExport) {
 
