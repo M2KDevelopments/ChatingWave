@@ -159,31 +159,34 @@ function App() {
 
 
           </section>
-
-
-          {/* Display Phone for Images and Videos */}
-          {/* <div className="fixed top-0 left-0 w-fit h-fit">
-            <Phone
-              id="phone"
-              fullscreen={false}
-              name={chatName}
-              image={chatImage}
-              width={parseInt(resolution)}
-              height={resolutions.get(resolution)!}
-              platform={platform}
-              lightmode={lightmode}
-              messages={playing ? templateMessages : messages}
-              setMessages={setMessages}
-              online={true}
-              scrollY={phoneScrollY}
-              noScrollBar={true}
-              hoverIndex={-1}
-              setHoverIndex={setHoverIndex}
-            />
-          </div> */}
-
-          <ToastContainer />
         </div>
+
+        {/* Display Phone for Images and Videos */}
+        <div className="fixed top-0 left-0 w-fit h-fit">
+          <Phone
+            id="phone"
+            fullscreen={false}
+            name={chatName}
+            setChatName={setChatName}
+            setChatImage={setChatImage}
+            image={chatImage}
+            width={parseInt(resolution)}
+            height={resolutions.get(resolution)!}
+            platform={platform}
+            lightmode={lightmode}
+            messages={playing ? templateMessages : messages}
+            people={people}
+            setMessages={setMessages}
+            online={true}
+            scrollY={phoneScrollY}
+            noScrollBar={true}
+            hoverIndex={-1}
+            setHoverIndex={setHoverIndex}
+            indexPerson={indexPerson}
+          />
+        </div>
+        
+        <ToastContainer />
       </main>
     )
   }
