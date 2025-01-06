@@ -1,12 +1,16 @@
 import emily from './emily.jpg';
 import you from './you.png';
+
+export const CHATNAME = "Chating Wave";
+export const PERSONNAME = "Emily";
+
 export const MESSAGES = [
     {
         id: "1",
         me: false,
         text: "Hello there how are you doing?",
         time: "12:24",
-        name: "Emily Bank",
+        name: PERSONNAME,
         reactions: ["🫡", "🫵🏽", "👉🏽", "💯", "🔥"],
         scale: 1,
         opacity: 1,
@@ -44,7 +48,7 @@ export const MESSAGES = [
         reactions: [],
         text: "Hello there how are you doing?",
         time: "12:24",
-        name: "Emily Bank",
+        name: PERSONNAME,
         scale: 1,
         opacity: 1,
         profileImage: emily
@@ -82,7 +86,7 @@ export const MESSAGES = [
         text: "Hello there how are you doing?",
         time: "12:24",
         replyId: "1",
-        name: "Emily Bank",
+        name: PERSONNAME,
         scale: 1,
         opacity: 1,
         profileImage: emily

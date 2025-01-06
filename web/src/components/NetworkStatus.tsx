@@ -21,6 +21,7 @@ function NetworkStatus(props: IPhone) {
     const [time, setTime] = useState("12:00")
     const fontSize = 23 * (props.height / 1280);
 
+    
     useEffect(() => {
         const d = new Date();
         const hours = d.getHours() < 10 ? `0${d.getHours()}` : d.getHours()

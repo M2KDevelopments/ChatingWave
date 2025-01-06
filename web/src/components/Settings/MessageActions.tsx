@@ -5,6 +5,7 @@ import { IoSend } from 'react-icons/io5'
 import { IMessage } from '../../interfaces/message'
 import { IPerson } from '../../interfaces/person'
 import emily from '../../assets/emily.jpg';
+import youImage from '../../assets/you.png';
 import IMAGES from '../../assets/images.json';
 import { toast } from 'react-toastify'
 import EmojiData from '@emoji-mart/data'
@@ -22,12 +23,14 @@ interface IAction {
     chatImage: string,
     chatName: string,
     platform: string,
+
     setChatName: (chatName: string) => void,
     setChatImage: (chatImage: string) => void,
     setPlatform: (p: string) => void,
     setHoverIndex: (index: number) => void,
     setMessages: (messages: Array<IMessage>) => void,
     setPeople: (people: Array<IPerson>) => void,
+    setIndexPerson: (index: number) => void
 }
 
 interface Emoji {
@@ -66,14 +69,12 @@ function MessageActions(props: IAction) {
         setMessageTime(time);
     }, [])
 
+
     const onAddMessage = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         if (messageText.trim() == '') return;
-        // const d = new Date();
-        // const hours = d.getHours() < 10 ? `0${d.getHours()}` : d.getHours()
-        // const mins = d.getMinutes() < 10 ? `0${d.getMinutes()}` : d.getMinutes();
-        // const time = `${hours}:${mins}`;
+
         const message = {
             id: crypto.randomUUID(),
             me: props.indexPerson == -1,
@@ -85,11 +86,28 @@ function MessageActions(props: IAction) {
             read: true,
             scale: 1,
             opacity: 1,
-            profileImage: emily
+            profileImage: props.indexPerson == -1 ? youImage : props.people[props.indexPerson].image || emily,
         } as IMessage;
         props.setMessages([...props.messages, message]);
         setMessageText("")
         setMessageImage("");
+
+        // Update time
+        const mins = 2;// minutes to add
+        const d = new Date()
+        d.setHours(parseInt(messageTime.split(":")[0]));
+        d.setMinutes(parseInt(messageTime.split(":")[1]) + mins);
+        const h = d.getHours() < 10 ? `0${d.getHours()}` : d.getHours()
+        const m = d.getMinutes() < 10 ? `0${d.getMinutes()}` : d.getMinutes();
+        setMessageTime(`${h}:${m}`);
+
+        // Switch to next person
+        const you = props.indexPerson == -1;
+        const lastperson = props.indexPerson == props.people.length - 1;
+
+        if (you) props.setIndexPerson(0);
+        else if (lastperson) props.setIndexPerson(-1)
+        else props.setIndexPerson(props.indexPerson + 1)
     }
 
 

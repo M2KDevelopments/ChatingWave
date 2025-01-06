@@ -16,7 +16,7 @@ import MessageActions from "./components/Settings/MessageActions";
 import SaveMessages from "./components/Settings/SaveMessages";
 
 // Assets
-import { MESSAGES } from './assets/messages'
+import { MESSAGES, CHATNAME, PERSONNAME } from './assets/messages'
 import emily from './assets/emily.jpg';
 import Ad from "./components/Settings/Ad";
 
@@ -29,12 +29,13 @@ resolutions.set('1080', 1920)
 resolutions.set('1440', 2560)
 // resolutions.set('2160', 3840)
 
+
 function App() {
 
   const [loading, setLoading] = useState(false);
 
   // Phone Settings
-  const [chatName, setChatName] = useState("Emily (CW)");
+  const [chatName, setChatName] = useState(CHATNAME);
   const [chatImage, setChatImage] = useState(emily);
   const [lightmode, setLightMode] = useState(false);
   const [platform, setPlatform] = useState("whatsapp");
@@ -45,7 +46,7 @@ function App() {
 
   // Messages
   const [messages, setMessages] = useState([] as Array<IMessage>)
-  const [people, setPeople] = useState([{ name: "Emily (CW)", image: emily }] as Array<IPerson>);
+  const [people, setPeople] = useState([{ name: PERSONNAME, image: emily }] as Array<IPerson>);
   const [indexPerson, setIndexPerson] = useState(0);
 
   // Preview Settings
@@ -61,7 +62,7 @@ function App() {
     //Defaults
     setResolution("720");
     setIndexPerson(0);
-    setPeople([{ name: "Emily (CW)", image: emily }])
+    setPeople([{ name: PERSONNAME, image: emily }])
     setMessages(MESSAGES); // Set Messages Default
 
     // Automatically adjust as the window resizes
@@ -235,6 +236,7 @@ function App() {
             setPlatform={setPlatform}
             setHoverIndex={setHoverIndex}
             setPeople={setPeople}
+            setIndexPerson={setIndexPerson}
           />
 
           <SaveMessages
