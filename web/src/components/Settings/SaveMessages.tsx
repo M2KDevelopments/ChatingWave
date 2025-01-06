@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 // FFMPEG - https://ffmpegwasm.netlify.app/docs/getting-started/usage
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { fetchFile, toBlobURL } from '@ffmpeg/util';
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { IMessage } from "../../interfaces/message";
 import swal from "sweetalert";
 
@@ -40,14 +40,34 @@ function SaveMessages(props: IExport) {
     const [ffmpegLoaded, setFFmpegLoaded] = useState(false);
     const ffmpegRef = useRef(new FFmpeg());
     const waitFor = (seconds: number) => new Promise(resolve => setTimeout(resolve, seconds * 1000));
+    const [ffmpegFrameCount, setFFmpegFrameCount] = useState(0);
+    const [ffmpegMaxFrames, setFFmpegMaxFrames] = useState(10);
 
+
+    // Calculate percentage left for the FFMpeg to finish up the video creation
+    const ffmpegProgress = useMemo(() => {
+        if (ffmpegMaxFrames == 0 || ffmpegFrameCount == 0) return 0;
+        const left = 100 - progress;
+        const p = ((1.0 * ffmpegFrameCount) / ffmpegMaxFrames) * left;
+        return parseInt(p.toString());
+    }, [ffmpegMaxFrames, ffmpegFrameCount, progress])
 
     useEffect(() => {
         const load = async () => {
             try {
                 const baseURL = ''; // '' or 'https://unpkg.com/@ffmpeg/core-mt@0.12.6/dist/esm';
                 const ffmpeg = ffmpegRef.current;
-                ffmpeg.on('log', console.log);
+                ffmpeg.on('log', (data) => {
+                    console.log(data);
+                    if (data.type == 'stderr') {
+                        const log = data.message;
+                        if (log.includes("fps")) {
+                            // eslint-disable-next-line no-useless-escape
+                            const frame = (parseInt(log.replace(/.*frame\=|fps.*/g, '').trim()))
+                            setFFmpegFrameCount(frame);
+                        }
+                    }
+                });
 
                 console.log('Loading FFMPEG')
                 // toBlobURL is used to bypass CORS issue, urls with the same
@@ -311,8 +331,9 @@ function SaveMessages(props: IExport) {
             const extension = exportType;
             // await ffmpeg.writeFile('input.avi', await fetchFile('https://raw.githubusercontent.com/ffmpegwasm/testdata/master/video-15s.avi'));
             const command = `-r ${FRAMES} -i %2d.jpeg -pix_fmt yuv420p output.${extension}`.split(' ');
+            setFFmpegMaxFrames(images.length)
             await ffmpeg.exec(command);
-
+            setFFmpegMaxFrames(0);
 
             // Download Video File
             const data = await ffmpeg.readFile(`output.${extension}`);
@@ -407,7 +428,7 @@ function SaveMessages(props: IExport) {
             {/* Progress Bar */}
             {progress <= 0 ? null :
                 <div className="flex-start flex h-1 w-full overflow-hidden rounded-full bg-gray-50 font-sans text-xs font-medium">
-                    <div style={{ width: `${progress}%` }} className={`flex h-full w-[${progress}%] items-center justify-center overflow-hidden break-all rounded-full bg-amber-500 text-white`}></div>
+                    <div style={{ width: `${(progress + ffmpegProgress)}%` }} className={`flex h-full w-[${(progress + ffmpegProgress)}%] items-center justify-center overflow-hidden break-all rounded-full bg-amber-500 text-white`}></div>
                 </div>
             }
 

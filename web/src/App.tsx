@@ -178,18 +178,22 @@ function App() {
               id="preview"
               fullscreen={false}
               name={chatName}
+              setChatName={setChatName}
               image={chatImage}
+              setChatImage={setChatImage}
               width={size.width}
               height={size.height}
               platform={platform}
               lightmode={lightmode}
               messages={playing ? templateMessages : messages}
+              people={people}
               setMessages={setMessages}
               online={true}
               scrollY={previewScrollY}
               noScrollBar={playing}
               hoverIndex={hoverIndex}
               setHoverIndex={setHoverIndex}
+              indexPerson={indexPerson}
             />
           </div>
         </section>
@@ -265,18 +269,22 @@ function App() {
           id="phone"
           fullscreen={false}
           name={chatName}
+          setChatName={setChatName}
+          setChatImage={setChatImage}
           image={chatImage}
           width={parseInt(resolution)}
           height={resolutions.get(resolution)!}
           platform={platform}
           lightmode={lightmode}
           messages={playing ? templateMessages : messages}
+          people={people}
           setMessages={setMessages}
           online={true}
           scrollY={phoneScrollY}
           noScrollBar={true}
           hoverIndex={-1}
           setHoverIndex={setHoverIndex}
+          indexPerson={indexPerson}
         />
       </div>
 

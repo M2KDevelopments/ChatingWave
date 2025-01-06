@@ -18,7 +18,7 @@ function Phone(props: IPhone) {
             <div id={props.id} className='flex flex-col relative' style={{ width: props.width, height: props.height }}>
                 <NetworkStatus {...props} />
                 <AppBar {...props} />
-                <Conversation {...props} />
+                <Conversation  {...props} />
                 <Messaging {...props} />
             </div>
         </div>

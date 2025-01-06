@@ -1,6 +1,8 @@
-import { IPhone } from '../../interfaces/phone'
 import { MdKeyboardBackspace, MdOutlinePhone, MdOutlineVideocam, MdMoreVert } from "react-icons/md";
 import emily from '../../assets/emily.jpg';
+import { IAppBar } from '../../interfaces/appbar';
+import { useState } from "react";
+import DialogChatImage from "../Dialog/DialogChatImage";
 
 // Percentages from total height
 const appBarSizePercentage = 8 / 100.0;
@@ -8,12 +10,12 @@ const iconSizePercentage = 3 / 100.0;
 const imageSizePercentage = 5 / 100.0;
 
 
-function InstagramAppBar(props: IPhone) {
+function InstagramAppBar(props: IAppBar) {
 
     // font size
     const nameFontSize = 22 * (props.height / 1280);
     const onlineFontSize = 17 * (props.height / 1280);
-
+const [dialog, setDialog] = useState(false);
 
 
     return (
@@ -26,10 +28,10 @@ function InstagramAppBar(props: IPhone) {
 
             {/* Name And Image */}
             <div className="flex gap-4 w-full">
-                <div>
+                <div className="cursor-pointer" onClick={() => setDialog(true)}>
                     <img src={props.image || emily} alt="Emily" className='ml-4 aspect-square rounded-full' style={{ height: props.height * imageSizePercentage }} />
                 </div>
-                <div className='flex flex-col justify-center'>
+                <div className='flex flex-col justify-center cursor-pointer' onClick={props.onUpdateChatName}>
                     <p style={{ fontSize: nameFontSize }}>{props.name}</p>
                     {props.online ? <span style={{ fontSize: onlineFontSize }} className='font-thin italic' >Online</span> : null}
                 </div>
@@ -41,6 +43,8 @@ function InstagramAppBar(props: IPhone) {
                 <MdOutlinePhone size={props.height * iconSizePercentage} />
                 <MdMoreVert size={props.height * iconSizePercentage} />
             </div>
+
+            <DialogChatImage chatImage={props.chatImage} setChatImage={props.setChatImage} dialog={dialog} setDialog={setDialog} />
         </div>
     )
 }

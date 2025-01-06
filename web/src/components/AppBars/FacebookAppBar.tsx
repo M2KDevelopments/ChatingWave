@@ -1,8 +1,10 @@
-import { IPhone } from '../../interfaces/phone'
 import { MdKeyboardBackspace, MdInfo } from "react-icons/md";
 import emily from '../../assets/emily.jpg';
 import { FaVideo } from "react-icons/fa6";
 import { FaPhoneAlt } from "react-icons/fa";
+import { IAppBar } from '../../interfaces/appbar';
+import DialogChatImage from "../Dialog/DialogChatImage";
+import { useState } from "react";
 
 
 // Percentages from total height
@@ -11,10 +13,11 @@ const iconSizePercentage = 2.4 / 100.0;
 const imageSizePercentage = 5 / 100.0;
 
 
-function FacebookAppBar(props: IPhone) {
+function FacebookAppBar(props: IAppBar) {
 
     // font size
     const nameFontSize = 22 * (props.height / 1280);
+    const [dialog, setDialog] = useState(false);
     // const onlineFontSize = 17 * (props.height / 1280);
 
 
@@ -24,7 +27,7 @@ function FacebookAppBar(props: IPhone) {
             style={{
                 height: props.height * appBarSizePercentage,
                 background: props.lightmode ? "#f3f4f6" : "#010101",
-                color: props.lightmode ? "#111827":"#f3f4f6"
+                color: props.lightmode ? "#111827" : "#f3f4f6"
             }}>
 
             {/* Back Button */}
@@ -34,10 +37,10 @@ function FacebookAppBar(props: IPhone) {
 
             {/* Name And Image */}
             <div className="flex gap-4 w-full">
-                <div>
+                <div className="cursor-pointer" onClick={() => setDialog(true)}>
                     <img src={props.image || emily} alt="Emily" className='ml-1 aspect-square rounded-full' style={{ height: props.height * imageSizePercentage }} />
                 </div>
-                <div className='flex flex-col justify-center'>
+                <div className='flex flex-col justify-center cursor-pointer' onClick={props.onUpdateChatName}>
                     <p style={{ fontSize: nameFontSize }} className='font-semibold'>{props.name}</p>
                     {/* {props.online ? <span style={{ fontSize: onlineFontSize }} className='font-thin italic' >Online</span> : null} */}
                 </div>
@@ -49,6 +52,8 @@ function FacebookAppBar(props: IPhone) {
                 <FaVideo color="#ab34f1" size={props.height * iconSizePercentage} />
                 <MdInfo color="#ab34f1" size={props.height * iconSizePercentage} />
             </div>
+
+            <DialogChatImage chatImage={props.chatImage} setChatImage={props.setChatImage} dialog={dialog} setDialog={setDialog} />
         </div>
     )
 }

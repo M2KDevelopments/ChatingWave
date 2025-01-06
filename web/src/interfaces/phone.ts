@@ -1,4 +1,5 @@
 import { IMessage } from "./message";
+import { IPerson } from "./person";
 
 export interface IPhone {
 
@@ -28,8 +29,14 @@ export interface IPhone {
 
     fullscreen: boolean,
 
+    indexPerson: number,
+    people: Array<IPerson>,
+
     //function
     setMessages: (messages: Array<IMessage>) => void,
     hoverIndex: number,
     setHoverIndex: (index: number) => void,
+
+    setChatName: (chatName: string) => void,
+    setChatImage: (chatImage: string) => void,
 }
