@@ -18,27 +18,45 @@ const iconSizePercentage = 2 / 100;
 
 function NetworkStatus(props: IPhone) {
 
-    const [time, setTime] = useState("12:00 PM")
+    const [time, setTime] = useState("12:00")
     const fontSize = 23 * (props.height / 1280);
 
-
-    // Count every second
     useEffect(() => {
-        const t = setInterval(() => {
-            const d = new Date();
-            const hours = d.getHours() < 10 ? `0${d.getHours()}` : d.getHours()
-            const mins = d.getMinutes() < 10 ? `0${d.getMinutes()}` : d.getMinutes();
-            const amOrPM = new Date().toLocaleTimeString().split(" ")[1]
-            const time = `${hours}:${mins} ${amOrPM}`;
-            setTime(time);
-        }, 1000);
-        return () => clearInterval(t);
+        const d = new Date();
+        const hours = d.getHours() < 10 ? `0${d.getHours()}` : d.getHours()
+        const mins = d.getMinutes() < 10 ? `0${d.getMinutes()}` : d.getMinutes();
+        // const amOrPM = new Date().toLocaleTimeString().split(" ")[1]
+        const time = `${hours}:${mins}`;
+        setTime(time);
     }, []);
+
+    const onTime = async () => {
+        const newtime = await swal({
+            text: 'Enter the time for the message',
+            icon: 'info',
+            content: {
+                element: 'input',
+                attributes: {
+                    'style': '2px solid cyan;',
+                    'value': time,
+                    'placeholder': 'Enter the time e.g 12:14'
+                }
+            }
+        });
+
+        if (!/^\d{1,2}:\d{2}$/.test(newtime)) return;
+
+        const [h, m] = newtime.split(':').map(Number);
+        if (h < 0 || m < 0 || h > 23 || m > 59) return;
+
+        const formattedTime = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+        setTime(formattedTime);
+    }
 
 
     return (
         <div style={{ color: props.lightmode ? "#111827" : "white", background: props.lightmode ? "#f3f4f6" : "#0b141b" }} className='w-full flex content-center py-2 px-4'>
-            <p style={{ fontSize }} className='w-1/2 text-start'>{props.time || time}</p>
+            <p onClick={onTime} style={{ fontSize }} className='w-1/2 text-start cursor-pointer'>{props.time || time}</p>
             <div className='w-1/2 flex gap-3 justify-end content-center'>
 
                 {/* Wifi */}
