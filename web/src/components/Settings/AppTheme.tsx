@@ -11,7 +11,7 @@ import { FaSquareFacebook, FaSquareWhatsapp } from "react-icons/fa6";
 
 
 interface IVisuals {
-
+    fullscreen: boolean;
     lightmode: boolean,
     platform: string,
     setPlatform: (p: string) => void,
@@ -28,7 +28,7 @@ function AppTheme(props: IVisuals) {
         <div style={{ borderColor: props.lightmode ? "#bfcbd3" : "#4b5563" }} className='flex gap-3 w-full p-2 border-2 rounded-lg items-center'>
             <div style={{ width: "100pc" }} className="flex gap-3">
                 <img src="/logo.png" alt="Chating Wave" width={30} height={30} />
-                <span className="text-2xl text-slate-400 font-bold">Chating Wave</span>
+                {props.fullscreen ? null : <span className="text-2xl text-slate-400 font-bold">Chating Wave</span>}
             </div>
             <div className="w-full"></div>
             <div className='flex gap-3 justify-end'>

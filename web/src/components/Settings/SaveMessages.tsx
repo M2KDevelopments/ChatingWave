@@ -15,6 +15,7 @@ const audio = new Audio(whatsappAudio);
 
 interface IExport {
     loading: boolean,
+    fullscreen: boolean,
     playing: boolean,
     messages: Array<IMessage>,
     resolution: string,
@@ -398,28 +399,28 @@ function SaveMessages(props: IExport) {
     return (
         <div className="flex flex-col w-full">
 
-            <div className='flex w-full'>
+            <div className='flex w-full tablet-xl:text-md laptop:text-2xl'>
                 {props.playing ?
-                    <button className="rounded-s-md flex content-center items-center align-middle text-center justify-center gap-4 w-2/4 px-6 py-3 font-bold text-white text-2xl bg-gradient-to-tr from-red-400 to-red-500 shadow-2xl shadow-red-400 hover:shadow-3xl hover:shadow-white duration-200 cursor-pointer" onClick={onStop}>
+                    <button className="tablet-xl:rounded-s-sm laptop:rounded-s-md flex content-center items-center align-middle text-center justify-center gap-4 w-2/4 tablet-xl:px-4 laptop:px-6 py-3 font-bold text-white  bg-gradient-to-tr from-red-400 to-red-500 shadow-2xl shadow-red-400 hover:shadow-3xl hover:shadow-white duration-200 cursor-pointer" onClick={onStop}>
                         <span>Stop</span>
-                        <FaStop />
+                        {props.fullscreen ? null : <FaStop />}
                     </button> :
-                    <button className="rounded-s-md flex content-center items-center align-middle text-center justify-center gap-4 w-2/4 px-6 py-3 font-bold text-white text-2xl bg-gradient-to-tr from-blue-400 to-blue-500 shadow-2xl shadow-blue-400 hover:shadow-3xl hover:shadow-blue-300 duration-200 cursor-pointer" disabled={props.loading} onClick={onPreview}>
+                    <button className="tablet-xl:rounded-s-sm laptop:rounded-s-md flex content-center items-center align-middle text-center justify-center gap-4 w-2/4 tablet-xl:px-4  laptop:px-6 py-3 font-bold text-white  bg-gradient-to-tr from-blue-400 to-blue-500 shadow-2xl shadow-blue-400 hover:shadow-3xl hover:shadow-blue-300 duration-200 cursor-pointer" disabled={props.loading} onClick={onPreview}>
                         <span>Preview</span>
-                        <FaPlay />
+                        {props.fullscreen ? null : <FaPlay />}
                     </button>
                 }
 
-                <button disabled={props.loading} className="flex content-center items-center align-middle text-center justify-center gap-4 w-2/4 px-6 py-3 font-bold text-white text-2xl bg-gradient-to-tr from-pink-400 to-pink-500 shadow-2xl shadow-pink-400 hover:shadow-3xl hover:shadow-white duration-200 cursor-pointer" onClick={onScreenshot}>
+                <button disabled={props.loading} className="flex content-center items-center align-middle text-center justify-center gap-4 w-2/4 tablet-xl:px-4  laptop:px-6 py-3 font-bold text-white bg-gradient-to-tr from-pink-400 to-pink-500 shadow-2xl shadow-pink-400 hover:shadow-3xl hover:shadow-white duration-200 cursor-pointer" onClick={onScreenshot}>
                     <span>{props.loading ? "Loading..." : "Screenshot"}</span>
-                    <FaImage />
+                    {props.fullscreen ? null : <FaImage />}
                 </button>
 
-                <button disabled={props.loading} className="flex content-center items-center align-middle text-center justify-center gap-4 w-2/4 px-6 py-3 font-bold text-white text-2xl bg-gradient-to-tr from-amber-400 to-amber-500 shadow-2xl shadow-amber-400 hover:shadow-3xl hover:shadow-white duration-200 cursor-pointer" onClick={onExport}>
+                <button disabled={props.loading} className="flex content-center items-center align-middle text-center justify-center gap-4 w-2/4 tablet-xl:px-4  laptop:px-6 py-3 font-bold text-white  bg-gradient-to-tr from-amber-400 to-amber-500 shadow-2xl shadow-amber-400 hover:shadow-3xl hover:shadow-white duration-200 cursor-pointer" onClick={onExport}>
                     <span>{props.loading || !ffmpegLoaded ? "Loading..." : "Video"}</span>
-                    <FaVideo />
+                    {props.fullscreen ? null : <FaVideo />}
                 </button>
-                <button onClick={onResolutionChange} className="rounded-e-md bg-amber-500 px-4 font-bold text-white shadow-2xl shadow-amber-400 hover:shadow-3xl hover:shadow-white duration-200 cursor-pointer">
+                <button onClick={onResolutionChange} className="tablet-xl:rounded-e-sm laptop:rounded-e-md bg-amber-500 px-4 font-bold text-white shadow-2xl shadow-amber-400 hover:shadow-3xl hover:shadow-white duration-200 cursor-pointer">
                     {resolutions.get(props.resolution)}
                 </button>
 

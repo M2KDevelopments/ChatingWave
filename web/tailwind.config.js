@@ -14,7 +14,7 @@ export default {
       'tablet': '640px',
       // => @media (min-width: 640px) { ... }
 
-      'tablet-xl': '700px',
+      'tablet-xl': '800px',
       // => @media (min-width: 700px) { ... }
 
       'laptop': '1024px',

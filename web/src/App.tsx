@@ -55,6 +55,9 @@ function App() {
   const [previewScrollY, setPreviewScrollY] = useState(0);
   const [phoneScrollY, setPhoneScrollY] = useState(0);
 
+  // Screen Size
+  const [screen, setScreen] = useState(900);
+
   // Export Settings
   const [resolution, setResolution] = useState("720");
 
@@ -73,6 +76,7 @@ function App() {
       const w = document.documentElement.getBoundingClientRect().width * p;
       const h = document.documentElement.getBoundingClientRect().width * p * (1920 / 1080);
       setSize({ width: parseInt(w.toString()), height: parseInt(h.toString()) });
+      setScreen(screenWidth)
 
     }
     handleResize();
@@ -82,87 +86,107 @@ function App() {
 
 
   // Mobile Version
-  // if (size.width <= 800) {
-  //   return (
-  //     <main className="overflow-hidden">
-  //       <div style={{ background: lightmode ? "#f7f7f7" : "#111827" }} className="flex w-screen h-screen overflow-hidden relative z-10">
+  if (screen <= 800) {
+    return (
+      <main className="overflow-hidden">
+        <div style={{ background: lightmode ? "#f7f7f7" : "#111827" }} className="flex w-screen h-screen overflow-hidden relative z-10">
 
-  //         <section className="w-full flex justify-center flex-col m-auto align-middle p-4">
+          <section className="w-full flex flex-col m-auto align-middle p-1">
 
-  //           <AppTheme
-  //             lightmode={lightmode}
-  //             setLightMode={setLightMode}
-  //             platform={platform}
-  //             setPlatform={setPlatform}
-  //           />
-
-
-  //           <BarStatus
-  //             chatImage={chatImage}
-  //             chatName={chatName}
-  //             setChatImage={setChatImage}
-  //             setChatName={setChatName}
-  //             setMessages={setMessages}
-  //             lightmode={lightmode}
-  //             people={people}
-  //             indexPerson={indexPerson}
-  //             loading={loading}
-  //             messages={messages}
-  //             setPeople={setPeople}
-  //             setIndexPerson={setIndexPerson}
-  //           />
+            <AppTheme
+              fullscreen={true}
+              lightmode={lightmode}
+              setLightMode={setLightMode}
+              platform={platform}
+              setPlatform={setPlatform}
+            />
 
 
-  //           <div className="shadow-2xl shadow-cyan-600">
-  //             <Phone
-  //               id="preview"
-  //               fullscreen={true}
-  //               name={chatName}
-  //               image={chatImage}
-  //               width={size.width}
-  //               height={size.height}
-  //               platform={platform}
-  //               lightmode={lightmode}
-  //               messages={playing ? templateMessages : messages}
-  //               setMessages={setMessages}
-  //               online={true}
-  //               scrollY={previewScrollY}
-  //               noScrollBar={playing}
-  //               hoverIndex={hoverIndex}
-  //               setHoverIndex={setHoverIndex}
-  //             />
-  //           </div>
+            <BarStatus
+              fullscreen={true}
+              chatImage={chatImage}
+              chatName={chatName}
+              setChatImage={setChatImage}
+              setChatName={setChatName}
+              setMessages={setMessages}
+              lightmode={lightmode}
+              people={people}
+              indexPerson={indexPerson}
+              loading={loading}
+              messages={messages}
+              setPeople={setPeople}
+              setIndexPerson={setIndexPerson}
+            />
 
 
-  //         </section>
+            <div className="shadow-2xl shadow-cyan-600">
+              <Phone
+                id="preview"
+                fullscreen={true}
+                name={chatName}
+                setChatName={setChatName}
+                image={chatImage}
+                setChatImage={setChatImage}
+                width={size.width}
+                height={size.height}
+                platform={platform}
+                lightmode={lightmode}
+                messages={playing ? templateMessages : messages}
+                people={people}
+                setMessages={setMessages}
+                online={true}
+                scrollY={previewScrollY}
+                noScrollBar={playing}
+                hoverIndex={hoverIndex}
+                setHoverIndex={setHoverIndex}
+                indexPerson={indexPerson}
+              />
+            </div>
+
+            <SaveMessages
+              fullscreen={true}
+              playing={playing}
+              loading={loading}
+              messages={messages}
+              setLoading={setLoading}
+              setPlaying={setPlaying}
+              setTemplateMessages={setTemplateMessages}
+              setPhoneScrollY={setPhoneScrollY}
+              setPreviewScrollY={setPreviewScrollY}
+              resolution={resolution}
+              setResolution={setResolution}
+            />
 
 
-  //         {/* Display Phone for Images and Videos */}
-  //         {/* <div className="fixed top-0 left-0 w-fit h-fit">
-  //           <Phone
-  //             id="phone"
-  //             fullscreen={false}
-  //             name={chatName}
-  //             image={chatImage}
-  //             width={parseInt(resolution)}
-  //             height={resolutions.get(resolution)!}
-  //             platform={platform}
-  //             lightmode={lightmode}
-  //             messages={playing ? templateMessages : messages}
-  //             setMessages={setMessages}
-  //             online={true}
-  //             scrollY={phoneScrollY}
-  //             noScrollBar={true}
-  //             hoverIndex={-1}
-  //             setHoverIndex={setHoverIndex}
-  //           />
-  //         </div> */}
+          </section>
 
-  //         <ToastContainer />
-  //       </div>
-  //     </main>
-  //   )
-  // }
+
+          {/* Display Phone for Images and Videos */}
+          {/* <div className="fixed top-0 left-0 w-fit h-fit">
+            <Phone
+              id="phone"
+              fullscreen={false}
+              name={chatName}
+              image={chatImage}
+              width={parseInt(resolution)}
+              height={resolutions.get(resolution)!}
+              platform={platform}
+              lightmode={lightmode}
+              messages={playing ? templateMessages : messages}
+              setMessages={setMessages}
+              online={true}
+              scrollY={phoneScrollY}
+              noScrollBar={true}
+              hoverIndex={-1}
+              setHoverIndex={setHoverIndex}
+            />
+          </div> */}
+
+          <ToastContainer />
+        </div>
+      </main>
+    )
+  }
 
 
   return (
@@ -202,6 +226,7 @@ function App() {
         <section style={{ background: lightmode ? "#f7f7f7" : "#111827" }} className="w-3/5 bg-gradient-to-tr flex flex-col gap-3 items-center mt-2">
 
           <AppTheme
+            fullscreen={false}
             lightmode={lightmode}
             setLightMode={setLightMode}
             platform={platform}
@@ -210,6 +235,7 @@ function App() {
 
 
           <BarStatus
+            fullscreen={false}
             chatImage={chatImage}
             chatName={chatName}
             setChatImage={setChatImage}
@@ -244,6 +270,7 @@ function App() {
           />
 
           <SaveMessages
+            fullscreen={false}
             playing={playing}
             loading={loading}
             messages={messages}

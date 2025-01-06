@@ -14,8 +14,8 @@ const styles = {
 function Phone(props: IPhone) {
 
     return (
-        <div style={props.id == "preview" ? styles : {}}>
-            <div id={props.id} className='flex flex-col relative' style={{ width: props.width, height: props.height }}>
+        <div style={props.id == "preview" && !props.fullscreen ? styles : {}}>
+            <div id={props.id} className='flex flex-col relative' style={{ width: props.fullscreen ? "100%" : props.width, height: props.fullscreen ? "73vh" : props.height }}>
                 <NetworkStatus {...props} />
                 <AppBar {...props} />
                 <Conversation  {...props} />

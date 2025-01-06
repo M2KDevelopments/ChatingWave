@@ -23,6 +23,7 @@ interface IMessageStatus {
     loading: boolean,
     messages: Array<IMessage>,
     indexPerson: number,
+    fullscreen: boolean,
     setChatName: (chatName: string) => void,
     setChatImage: (chatImage: string) => void,
     setMessages: (messages: Array<IMessage>) => void,
@@ -215,20 +216,25 @@ function BarStatus(props: IMessageStatus) {
 
 
     return (
-        <div style={{ borderColor: props.lightmode ? "#bfcbd3" : "#4b5563" }} className='flex gap-3 w-full p-3 border-2 rounded-l'>
+        <div style={{ borderColor: props.lightmode ? "#bfcbd3" : "#4b5563" }} className='flex gap-3 w-full mobile:p-3 tablet-xl:p-3 laptop:p-3 border-2 rounded-l'>
 
 
             <div className='flex gap-3 w-1/2 items-center relative justify-start'>
-                <img src={props.chatImage} className='w-12 h-12 rounded-full cursor-pointer' onClick={() => setDialog(true)} />
-                <input maxLength={20} disabled={props.loading || loading} className='border-2 h-10 border-blue-200 w-40 outline-none font-thin text-gray-600 rounded-lg px-2 focus:border-gray-600' value={props.chatName} onChange={e => props.setChatName(e.target.value)} placeholder='Chat Name' />
+                {props.fullscreen ? null :
+                    <img src={props.chatImage} className='w-12 h-12 rounded-full cursor-pointer' onClick={() => setDialog(true)} />
+                }
+                {props.fullscreen ?
+                    null :
+                    <input maxLength={20} disabled={props.loading || loading} className='border-2 h-10 border-blue-200 w-48 outline-none text-sm font-thin text-gray-600 rounded-lg px-2 focus:border-gray-600' value={props.chatName} onChange={e => props.setChatName(e.target.value)} placeholder='Chat Name' />
+                }
                 <button disabled={props.loading || loading} onClick={onClear} title="Clear Chat" style={{ color: props.lightmode ? "#b91c1c" : "white" }} className=''>
-                    <MdBlock size={28} />
+                    <MdBlock size={props.fullscreen ? 18 : 28} />
                 </button>
                 <button disabled={props.loading || loading} onClick={onDownloadChat} title="Download Chat" style={{ color: props.lightmode ? "#be185d" : "white" }} className=''>
-                    <FaFileDownload size={26} />
+                    <FaFileDownload size={props.fullscreen ? 18 : 26} />
                 </button>
                 <button onClick={() => document.getElementById('upload-chat')?.click()} title="Upload Chat" style={{ color: props.lightmode ? "#be185d" : "white" }} className=''>
-                    <FaFileUpload size={26} />
+                    <FaFileUpload size={props.fullscreen ? 18 : 26} />
                 </button>
                 <input id="upload-chat" type="file" accept='.chat' className='invisible' onChange={onUploadChat} />
             </div>
@@ -237,11 +243,11 @@ function BarStatus(props: IMessageStatus) {
             {/* People */}
             <div className="flex gap-2 w-1/2 justify-end items-center">
                 {props.people.map((person, index) =>
-                    <button disabled={props.loading} onDoubleClick={() => { setPersonIndex(index); setName(person.name) }} onClick={() => props.setIndexPerson(index)} style={{ backgroundColor: index == props.indexPerson ? "#be185d" : "#f8fafc" }} key={index} className="w-12 rounded-full bg-amber-500 p-1 cursor-pointer hover:bg-slate-400 duration-200 shadow hover:shadow-2xl hover:shadow-amber-500">
+                    <button disabled={props.loading} onDoubleClick={() => { setPersonIndex(index); setName(person.name) }} onClick={() => props.setIndexPerson(index)} style={{ backgroundColor: index == props.indexPerson ? "#be185d" : "#f8fafc", width: props.fullscreen ? 24 : 48, height: props.fullscreen ? 24 : 48 }} key={index} className="rounded-full bg-amber-500 p-1 cursor-pointer hover:bg-slate-400 duration-200 shadow hover:shadow-2xl hover:shadow-amber-500">
                         <img title={person.name} src={person.image} alt={person.name} className="rounded-full" />
                     </button>
                 )}
-                <button disabled={props.loading} onClick={() => props.setIndexPerson(-1)} style={{ backgroundColor: props.indexPerson == -1 ? "#be185d" : "#f8fafc", color: props.indexPerson != -1 ? "#831843" : "white" }} className="w-12 h-12 rounded-full  bg-slate-50 p-1 cursor-pointer hover:bg-purple-600 duration-200 flex justify-center items-center shadow hover:shadow-2xl hover:shadow-purple-100 hover:text-amber-900 hover:font-bold">
+                <button disabled={props.loading} onClick={() => props.setIndexPerson(-1)} style={{ backgroundColor: props.indexPerson == -1 ? "#be185d" : "#f8fafc", color: props.indexPerson != -1 ? "#831843" : "white", width: props.fullscreen ? 24 : 48, height: props.fullscreen ? 24 : 48 }} className="rounded-full  bg-slate-50 p-1 cursor-pointer hover:bg-purple-600 duration-200 flex justify-center items-center shadow hover:shadow-2xl hover:shadow-purple-100 hover:text-amber-900 hover:font-bold">
                     <span>You</span>
                 </button>
                 {/* <button disabled={props.loading} onClick={onAddPerson} className="w-16 rounded-full text-amber-900 bg-slate-50 p-1 cursor-pointer hover:bg-purple-600 duration-200 flex justify-center items-center shadow hover:shadow-2xl hover:shadow-purple-100 hover:text-white">
