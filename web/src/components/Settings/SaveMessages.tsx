@@ -56,7 +56,7 @@ function SaveMessages(props: IExport) {
     useEffect(() => {
         const load = async () => {
             try {
-                const baseURL = 'https://unpkg.com/@ffmpeg/core-mt@0.12.6/dist/esm'; // '' or 'https://unpkg.com/@ffmpeg/core-mt@0.12.6/dist/esm';
+                const baseURL = ''; // '' or 'https://unpkg.com/@ffmpeg/core-mt@0.12.6/dist/esm';
                 const ffmpeg = ffmpegRef.current;
                 ffmpeg.on('log', (data) => {
                     console.log(data);

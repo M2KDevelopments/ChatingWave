@@ -10,6 +10,7 @@ import JSZip from 'jszip';
 import { MdBlock } from 'react-icons/md';
 import { FaFileDownload, FaFileUpload } from 'react-icons/fa';
 import DialogChatImage from '../Dialog/DialogChatImage';
+import { FaClock } from 'react-icons/fa6';
 
 const zip = new JSZip();
 
@@ -166,15 +167,15 @@ function BarStatus(props: IMessageStatus) {
                     if (filename.includes("images")) {
                         const i = filename.replace('.png', '').replace('images', '').replace('/', '')
                         const msgIndex = chatjson.messages.findIndex((m: IMessage) => m.id == i);
-                        chatjson.messages[msgIndex].image = image;
+                        if (chatjson.messages[msgIndex]) chatjson.messages[msgIndex].image = image;
                     } else if (filename.includes("profiles")) {
                         const i = filename.replace('.png', '').replace('profiles', '').replace('/', '')
                         const msgIndex = chatjson.messages.findIndex((m: IMessage) => m.id == i);
-                        chatjson.messages[msgIndex].profileImage = image;
+                        if (chatjson.messages[msgIndex]) chatjson.messages[msgIndex].profileImage = image;
                     } else if (filename.includes("people")) {
                         const i = filename.replace('.png', '').replace('people', '').replace('/', '')
                         const personIndex = parseInt(i);
-                        chatjson.people[personIndex].image = image;
+                        if (chatjson.people[personIndex]) chatjson.people[personIndex].image = image;
                     }
                 }
             }
@@ -213,6 +214,47 @@ function BarStatus(props: IMessageStatus) {
     }
 
 
+    const onTime = async () => {
+
+        const d = new Date();
+        const hours = d.getHours() < 10 ? `0${d.getHours()}` : d.getHours()
+        const mins = d.getMinutes() < 10 ? `0${d.getMinutes()}` : d.getMinutes();
+        const current = `${hours}:${mins}`;
+
+        const time = await swal({
+            title: `Setup Message Times`,
+            text: `Enter the start time for the first message.`,
+            icon: "info",
+            content: {
+                element: 'input',
+                attributes: {
+                    value: current,
+                },
+            },
+            buttons: ['Cancel', 'Apply']
+        });
+
+        if (!time || !time.includes(':') || isNaN(time.split(':')[0]) || isNaN(time.split(':')[1])) return;
+
+        const [h, m] = time.split(':');
+        const date = new Date();
+        date.setHours(parseInt(h));
+        date.setMinutes(parseInt(m));
+
+        for (const i in props.messages) {
+            const hr = date.getHours() < 10 ? `0${date.getHours()}` : date.getHours()
+            const mi = date.getMinutes() < 10 ? `0${date.getMinutes()}` : date.getMinutes();
+            props.messages[i].time = `${hr}:${mi}`;
+
+            // add time
+            date.setSeconds(date.getSeconds() + props.messages[i].text.length);
+        }
+
+        // update messages
+        props.setMessages([...props.messages]);
+    }
+
+
 
 
     return (
@@ -235,6 +277,9 @@ function BarStatus(props: IMessageStatus) {
                 </button>
                 <button onClick={() => document.getElementById('upload-chat')?.click()} title="Upload Chat" style={{ color: props.lightmode ? "#be185d" : "white" }} className=''>
                     <FaFileUpload size={props.fullscreen ? 18 : 26} />
+                </button>
+                <button onClick={onTime} title="Adjust Time" style={{ color: props.lightmode ? "#be185d" : "white" }} className=''>
+                    <FaClock size={props.fullscreen ? 18 : 26} />
                 </button>
                 <input id="upload-chat" type="file" accept='.chat' className='invisible' onChange={onUploadChat} />
             </div>
