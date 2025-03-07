@@ -19,6 +19,8 @@ import SaveMessages from "./components/Settings/SaveMessages";
 import { MESSAGES, CHATNAME, PERSONNAME } from './assets/messages'
 import emily from './assets/emily.jpg';
 import Ad from "./components/Settings/Ad";
+ 
+
 
 // Export Resolutions
 const resolutions = new Map<string, number>();
@@ -61,6 +63,7 @@ function App() {
   // Export Settings
   const [resolution, setResolution] = useState("720");
 
+ 
   useEffect(() => {
     //Defaults
     setResolution("720");
@@ -185,7 +188,7 @@ function App() {
             indexPerson={indexPerson}
           />
         </div>
-        
+
         <ToastContainer />
       </main>
     )
