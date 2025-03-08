@@ -24,8 +24,8 @@ dist-ssr
 *.sw?
 
 # Webs Assembly Files
-/public/*.wasm
-/public/ffmpeg*.js
+# /public/*.wasm
+# /public/ffmpeg*.js
 
 # Video Files
 /public/*.avi
