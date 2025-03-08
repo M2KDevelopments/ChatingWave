@@ -10,6 +10,7 @@ import swal from "sweetalert";
 
 // Assets
 import whatsappAudio from '../../assets/snd-whatsapp-new.mp3';
+import { useUpdatePreviewMessage } from "../../hooks/useUpdatePreviewMessage";
 const audio = new Audio(whatsappAudio);
 
 
@@ -43,6 +44,7 @@ function SaveMessages(props: IExport) {
     const waitFor = (seconds: number) => new Promise(resolve => setTimeout(resolve, seconds * 1000));
     const [ffmpegFrameCount, setFFmpegFrameCount] = useState(0);
     const [ffmpegMaxFrames, setFFmpegMaxFrames] = useState(10);
+    const updatePreview = useUpdatePreviewMessage();
 
 
     // Calculate percentage left for the FFMpeg to finish up the video creation
@@ -132,6 +134,21 @@ function SaveMessages(props: IExport) {
             const msg = { ...props.messages[index] };// a copy of the object
             const reactions = [...msg.reactions];
             msg.reactions = [];
+
+
+
+            // Typing Automations
+            if (msg.me) {
+                let typingmessage = "";
+                for (const m of msg.text.split("")) {
+                    await waitFor(0.1);
+                    typingmessage += m;
+                    updatePreview(typingmessage);
+                }
+            }
+            updatePreview("");
+
+
 
             // wait for the message to appear
             await waitFor(msg.delay || 2);
@@ -230,7 +247,7 @@ function SaveMessages(props: IExport) {
             let scrolling = 0;
 
             // animation
-            const FRAMES = 30;
+            const FRAMES = 60;
 
             // height of all the message before the are remove from const 
             const messageHeights = props.messages.map((msg) => document.getElementById(`msg-phone-${msg.id}`)!.getBoundingClientRect());
@@ -247,8 +264,28 @@ function SaveMessages(props: IExport) {
                 const reactions = [...msg.reactions];
                 msg.reactions = [];
 
+
+                // Typing Automations
+                if (msg.me) {
+                    let typingmessage = "";
+                    for (const m of msg.text.split("")) {
+
+                        typingmessage += m;
+                        updatePreview(typingmessage);
+
+                        // Get the images for the typing on  video
+                        const secs = 0.1;
+                        const typeTime = parseInt((secs * FRAMES).toString());
+                        for (let i = 0; i <= typeTime; i++) {
+                            const imgB64 = await domtoimage.toJpeg(phone);
+                            images.push(imgB64);
+                        }
+                    }
+                }
+                updatePreview("");
+
                 // wait for the message to appear
-                await waitFor(msg.delay || 2);
+                // await waitFor(msg.delay || 2);
 
                 // add message to the list
                 msg.scale = 1;

@@ -271,7 +271,7 @@ function MessageActions(props: IAction) {
                     <MdGif title="Add Gif" size={40} />
                 </div> */}
                 <input disabled={props.loading} value={messageTime} onChange={e => setMessageTime(e.target.value)} type="time" name="time" className='w-1/5 border-2 h-10 border-blue-200  outline-none font-thin text-gray-600 rounded-md px-2 focus:border-gray-600' />
-                <input disabled={props.loading} className='border-2 h-10 border-blue-200 w-full outline-none font-thin text-gray-600 rounded-md px-3 focus:border-gray-600' value={messageText} onChange={e => setMessageText(e.target.value)} placeholder='Message' />
+                <input disabled={props.loading} className='border-2 h-10 border-blue-200 w-full outline-none font-thin text-gray-600 rounded-md px-3 focus:border-gray-600' value={messageText} onChange={e => setMessageText(e.target.value)} placeholder='Message...' />
                 <button disabled={props.loading} type="submit" className='min-w-14 shadow-md bg-slate-600 rounded-md flex justify-center items-center text-white hover:bg-blue-950 duration-200 cursor-pointer' style={{ width: 60, height: 40 }}>
                     <IoSend />
                 </button>

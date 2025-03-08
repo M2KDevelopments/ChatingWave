@@ -18,7 +18,7 @@ function TwitterMessaging(props: IMessaging) {
         <div className='relative bottom-0 p-2 w-full flex gap-3' style={{ height: props.height * messsageSizePercentage, backgroundColor: props.lightmode ? "#efeae2" : "#494847" }}>
             <div className='rounded-full px-3 flex items-center gap-3 w-[90%] bg-white'>
                 <IoMdHappy color="grey" size={props.height * iconSizePercentage} />
-                <input style={{ fontSize: fontSize }} className='w-full outline-none font-thin text-gray-600' value={text} onChange={e => setText(e.target.value)} placeholder='Message' />
+                <input aria-label='message' style={{ fontSize: fontSize }} className='w-full outline-none font-thin text-gray-600' value={text} onChange={e => setText(e.target.value)} placeholder='Message...' />
                 <BsPaperclip color="grey" size={props.height * iconSizePercentage} />
             </div>
             <button onClick={() => {props.onAddMessage(text); setText(""); }} className='shadow-md bg-green-600 rounded-full flex justify-center items-center text-white' style={{ width: props.height * btnSizePercentage, height: props.height * btnSizePercentage }}>

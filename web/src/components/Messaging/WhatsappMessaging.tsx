@@ -25,7 +25,7 @@ function WhatsappMessaging(props: IMessaging) {
         }}>
             <div style={{ background: props.lightmode ? "white" : "#1f2c34", }} className='rounded-full px-3 flex items-center gap-3 w-[90%]'>
                 <IoMdHappy color={props.lightmode ? "grey" : "#859096"} size={props.height * iconSizePercentage} />
-                <input style={{ background: props.lightmode ? "white" : "#1f2c34", fontSize: fontSize, color: props.lightmode ? "#4b5563" : "white", }} className='w-full outline-none font-thin' value={text} onChange={e => setText(e.target.value)} placeholder='Message' />
+                <input aria-label='message' style={{ background: props.lightmode ? "white" : "#1f2c34", fontSize: fontSize, color: props.lightmode ? "#4b5563" : "white", }} className='w-full outline-none font-thin' value={text} onChange={e => setText(e.target.value)} placeholder='Message...' />
                 <BsPaperclip color={props.lightmode ? "grey" : "#859096"} size={props.height * iconSizePercentage} />
                 <BsCamera className='cursor-pointer' onClick={() => document.getElementById('msg-image')?.click()} color={props.messageImage ? "orange" : (props.lightmode ? "grey" : "#859096")} size={props.height * iconSizePercentage} />
             </div>

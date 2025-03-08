@@ -34,7 +34,7 @@ function FacebookMessaging(props: IMessaging) {
 
             {/* #f3f4f6,  */}
             <div style={{ background: props.lightmode ? "#f3f4f6" : "#374151" }} className='rounded-full px-3 flex items-center gap-3 w-[90%]'>
-                <input style={{ background: props.lightmode ? "#f3f4f6" : "#374151", fontSize: fontSize, color: props.lightmode ? "#4b5563" : "#d1d5db" }} className='bg-gray-700 w-full outline-none font-thin' value={text} onChange={e => setText(e.target.value)} placeholder='Message' />
+                <input aria-label='message' style={{ background: props.lightmode ? "#f3f4f6" : "#374151", fontSize: fontSize, color: props.lightmode ? "#4b5563" : "#d1d5db" }} className='bg-gray-700 w-full outline-none font-thin' value={text} onChange={e => setText(e.target.value)} placeholder='Message...' />
                 <FaSmile color="#0084ff" size={props.height * iconSizePercentage} />
             </div>
             <button onClick={() => { props.onAddMessage(text); setText(""); }} className='rounded-full flex justify-center items-center text-white' style={{ width: props.height * btnSizePercentage, height: props.height * btnSizePercentage }}>
