@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview --port 3011",
-    "start": "vite preview --port 3011"
+    "start": "vite preview --port 3011 --host"
   },
   "dependencies": {
     "@emoji-mart/data": "^1.2.1",
