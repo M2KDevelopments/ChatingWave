@@ -4,8 +4,8 @@ const cookieParser = require("cookie-parser");
 const express = require('express');
 const path = require('path');
 const database = require('./api/helpers/database.connection');
-const app = express();
-
+const app = express()
+require('express-ws')(app);
 
 // View Enging
 app.set('view engine', 'ejs');
@@ -24,7 +24,8 @@ database.startMongoDB(true);
 
 //routes
 app.all('/', (req, res) => res.status(200).send('Health Check Successful'));
- 
+app.use('/api/openai', require('./api/routes/openai'));
+
 // 404 - errors
 app.use((req, res, next) => {
     const error = new Error('Not Found');

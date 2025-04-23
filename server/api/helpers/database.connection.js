@@ -8,9 +8,9 @@ const mongoose = require('mongoose');
  * require('api/helpers/database.connection').startMongoDB()
  */
 exports.startMongoDB = (production = false) => {
-    const databasename = process.env.MONGODB_NAME;
-    const user = process.env.MONGODB_USER;
-    const password = process.env.MONGODB_PASS;
+    const databasename = process.env.MONGO_DB_NAME;
+    const user = process.env.MONGO_DB_USER;
+    const password = process.env.MONGO_DB_PASS;
     const connection = production ?
         `mongodb+srv://${user}:${password}@m2kdevelopmentscluster.xval1.mongodb.net/${databasename}?retryWrites=true&w=majority`
         :
