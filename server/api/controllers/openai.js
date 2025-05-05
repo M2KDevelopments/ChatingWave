@@ -1,8 +1,262 @@
+const FS = require('fs');
+const fs = require('fs').promises;
 const WebSocket = require('ws');
+const OpenAI = require('openai');
+const Assistant = require('../models/assistants');
 const { binaryStringToArrayBuffer, concat2ArrayBuffers, concatArrayBuffers, createWavHeader } = require('../helpers/audio.buffer')
 const OPENAI_MODEL = 'gpt-4o-realtime-preview-2024-10-01'
 
 
+exports.getAssistants = async (req, res) => {
+    try {
+        const { uid } = req.user;
+        return res.status(200).json(await Assistant.find({ user: uid }).lean());
+    } catch (e) {
+        console.log(e.message);
+        return res.status(500).json({ result: false, message: e.message });
+    }
+}
+
+exports.getAssistant = async (req, res) => {
+    try {
+        const { id } = req.params;
+        return res.status(200).json(await Assistant.findById(id).lean());
+    } catch (e) {
+        console.log(e.message);
+        return res.status(500).json({ result: false, message: e.message });
+    }
+}
+
+exports.createAssistant = async (req, res) => {
+    try {
+        const { uid } = req.user;
+        const { name } = req.body;
+
+        // Check for existing assistant with the same name
+        const existing = await Assistant.findOne({ name, user: uid })
+        if (existing) return res.status(200).json({ result: true, message: `${name} already exists` });
+
+
+        // Create Openai Assistant
+        const openai = new OpenAI({ apiKey: req.body.api_key });
+        const openAIAssistant = await openai.beta.assistants.create({
+            name: name,
+            description: req.body.description || "",
+            instructions: req.body.prompt || "",
+            tools: [],
+            model: req.body.model || 'gpt-3.5-turbo',
+            temperature: req.body.temperature || 0.8,
+        });
+
+        // Create Chating Wave Assistant
+        const assistantId = openAIAssistant.id;
+        req.body.assistant_id = assistantId;
+        req.body.user = uid;
+        const ast = new Assistant(req.body);
+        const assistant = await ast.save();
+
+        return res.status(201).json({ result: true, message: `${name} was created successfully`, id: assistant._id });
+    } catch (e) {
+        console.log(e);
+        return res.status(500).json({ result: false, message: e.message });
+    }
+}
+
+exports.updateAssistant = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { uid } = req.user;
+        const {
+            name, description, api_key, voice, model, temperature,
+            files, vector_store_id, websites,
+            prompt, elevenlabs_voice_id,
+            webhook_url, webhook_headers, webhook_method,
+        } = req.body;
+
+        const ast = await Assistant.findOne({ _id: id, user: uid })
+        if (!ast) return res.status(400).json({ result: false, message: `Assistant does not exist` });
+
+        if (name != undefined) ast.name = name;
+        if (description != undefined) ast.name = name;
+        if (api_key != undefined) ast.name = name;
+        if (voice != undefined) ast.name = name;
+        if (model != undefined) ast.name = name;
+        if (temperature != undefined) ast.name = name;
+        if (files != undefined) ast.name = name;
+        if (vector_store_id != undefined) ast.name = name;
+        if (websites != undefined) ast.name = name;
+        if (prompt != undefined) ast.name = name;
+        if (elevenlabs_voice_id != undefined) ast.name = name;
+        if (webhook_url != undefined) ast.name = name;
+        if (webhook_headers != undefined) ast.name = name;
+        if (webhook_method != undefined) ast.name = name;
+
+        // Update assistant
+        if (ast.api_key && ast.assistant_id) {
+            const openai = new OpenAI({ apiKey: api_key || ast.api_key });
+            await openai.beta.assistants.update(ast.assistant_id, {
+                name: name,
+                description: description,
+                instructions: prompt,
+                tools: [],
+                model: model || ast.model,
+                temperature: temperature || 0.8,
+            });
+        }
+
+
+        await ast.save();
+        return res.status(201).json({ result: true, message: `${ast.name} was updated successfully` });
+    } catch (e) {
+        console.log(e);
+        return res.status(500).json({ result: false, message: e.message });
+    }
+}
+
+exports.deleteAssistant = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { uid } = req.user;
+
+        const ast = await Assistant.findOne({ _id: id, user: uid })
+        if (!ast) return res.status(400).json({ result: false, message: `Assistant does not exist` });
+
+        try {
+            // https://platform.openai.com/docs/api-reference/assistants/deleteAssistant
+            const openai = new OpenAI({ apiKey: ast.api_key });
+            await openai.beta.assistants.del(ast.assistant_id)
+            console.log(`Remove Open AI Assistant`)
+        } catch (err) {
+        }
+
+        await ast.remove();
+        return res.status(201).json({ result: true, message: `${ast.name} was removed successfully` });
+    } catch (e) {
+        console.log(e.message);
+        return res.status(500).json({ result: false, message: e.message });
+    }
+}
+
+
+/* OpenAI Vector Store Files */
+exports.getVectorFiles = async function (req, res) {
+    try {
+        const { id } = req.params;
+        const ast = await Assistant.findById(id).lean();
+        const openai = new OpenAI({ apiKey: ast.api_key });
+
+        // Get Vector Store Files 
+        const list = await openai.files.list();
+        if (ast.vector_store_id) {
+            const vectorStoreFiles = await openai.beta.vectorStores.files.list(ast.vector_store_id);
+
+            // Map the vector files to the open ai file names
+            const files = vectorStoreFiles.data.map(f => {
+                const index = list.data.findIndex(file => file.id == f.id)
+                if (index != -1) return { ...f, filename: list.data[index].filename };
+                return f;
+            });
+            return res.status(200).json(files);
+        }
+
+        // Get All the files uploaded to openai
+        return res.status(200).json([])
+    } catch (e) {
+        if (e.response) console.log(e.response.data)
+        else console.log(e);
+        return res.status(500).json({ result: false, message: e.message });
+    }
+}
+
+// https://platform.openai.com/docs/api-reference/files/create
+exports.updateVectorFiles = async (req, res) => {
+
+    try {
+        const { uid } = req.user;
+        const { id } = req.params;
+        const ast = await Assistant.findOne({ _id: id, user: uid })
+        if (!ast) return res.status(400).json({ result: false, message: `Assistant does not exist` });
+
+        const openai = new OpenAI({ apiKey: ast.api_key });
+        console.log('req.files', req.files);
+        const aiFiles = [];
+        for (const file of req.files) {
+            // const { originalname, encoding, mimetype, path } = file;
+            const f = await openai.files.create({
+                file: FS.createReadStream(file.path),
+                purpose: "assistants",
+            });
+            aiFiles.push(f);
+        }
+
+
+
+        // Create Vector Store
+        // https://platform.openai.com/docs/api-reference/vector-stores-file-batches
+        if (ast.vector_store_id) await openai.beta.vectorStores.del(ast.vector_store_id);
+        const vectorStore = await openai.beta.vectorStores.create({ name: ast.name, file_ids: aiFiles.map(f => f.id) })
+
+        // update actual openai assistant
+        const tools = await this.getAssistantFunctionCallTools(id);
+        const a = await openai.beta.assistants.update(ast.assistant_id, {
+            tools: [...tools, { type: "file_search" }],
+            tool_resources: {
+                file_search: {
+                    vector_store_ids: [vectorStore.id]
+                }
+            },
+        });
+
+        // save asssistant settings
+        ast.files = aiFiles;
+        ast.vector_store_id = vectorStore.id
+        await ast.save();
+
+        // remove all the files
+        for (const file of req.files) {
+            try {
+                await fs.unlink(file.path)
+            } catch (e) {
+                // when something goes wrong
+            }
+        }
+        return res.status(201).json({ result: true, message: `${req.files.length} File(s) was uploaded successfully` });
+    } catch (e) {
+        console.log(e);
+        return res.status(500).json({ result: false, message: e.message });
+    }
+}
+
+exports.deleteVectorFile = async (req, res) => {
+    try {
+        const { id, fileId } = req.params;
+        const { uid } = req.user;
+
+        const ast = await Assistant.findOne({ _id: id, user: uid });
+        if (!ast) return res.status(400).json({ result: false, message: `Assistant does not exist` });
+
+        // Remove file from openai
+        const openai = new OpenAI({ apiKey: ast.api_key });
+
+        // Remove file from vector store
+        if (ast.vector_store_id && fileId) {
+            console.log(uid, 'Removed file from vector store', ast.vector_store_id)
+            await openai.beta.vectorStores.files.del(ast.vector_store_id, fileId);
+        }
+
+        const file = await openai.files.del(fileId);
+        ast.files = ast.files.filter(f => f.id != fileId);
+
+        await ast.save();
+        return res.status(201).json({ result: true, message: `File was removed successfully`, file });
+    } catch (e) {
+        console.log(e.message);
+        return res.status(500).json({ result: false, message: e.message });
+    }
+}
+
+
+/** Openai Realtime API */
 exports.get = async (req, res) => {
     return res.status(200).json({});
 }
@@ -228,7 +482,7 @@ function sendMessage(openAiWs, message) {
 
     openAiWs.send(JSON.stringify(initialConversationItem));
     openAiWs.send(JSON.stringify(responseCreate));
-    
+
 }
 
 /**
