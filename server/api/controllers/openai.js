@@ -2,11 +2,26 @@ const FS = require('fs');
 const fs = require('fs').promises;
 const WebSocket = require('ws');
 const OpenAI = require('openai');
+const OpenAITool = require('../models/assistants.tool');
 const Assistant = require('../models/assistants');
 const { binaryStringToArrayBuffer, concat2ArrayBuffers, concatArrayBuffers, createWavHeader } = require('../helpers/audio.buffer')
 const OPENAI_MODEL = 'gpt-4o-realtime-preview-2024-10-01'
+const User = require('../models/user');
+
+// Get Models
+exports.getModels = async (req, res) => {
+    try {
+        const openai = new OpenAI({ apiKey: process.env.OPENAI_API });
+        const models = await openai.models.list();
+        return res.status(200).json(models.data);
+    } catch (e) {
+        console.log(e.message);
+        return res.status(500).json({ result: false, message: e.message });
+    }
+}
 
 
+/** Assistants CRUD */
 exports.getAssistants = async (req, res) => {
     try {
         const { uid } = req.user;
@@ -138,6 +153,76 @@ exports.deleteAssistant = async (req, res) => {
 }
 
 
+
+/* OpenAI Tools */
+exports.getTools = async (req, res) => {
+    try {
+        return res.status(200).json(await OpenAITool.find({ user: req.user.uid }).lean());
+    } catch (e) {
+        console.log(e.message);
+        return res.status(500).json({ result: false, message: e.message });
+    }
+}
+
+exports.getToolOne = async (req, res) => {
+    try {
+        return res.status(200).json(await OpenAITool.findById(req.params.id).lean());
+    } catch (e) {
+        console.log(e.message);
+        return res.status(500).json({ result: false, message: e.message });
+    }
+}
+
+exports.postTool = async (req, res) => {
+    try {
+        const body = req.body;
+        body.user = req.user.uid;
+        const c = new OpenAITool(body);
+        const tool = await c.save();
+        return res.status(201).json({ result: true, message: `Tool saved successfully`, id: tool._id });
+    } catch (e) {
+        console.log(e.message);
+        return res.status(500).json({ result: false, message: e.message });
+    }
+}
+
+exports.patchTool = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const tool = await OpenAITool.findById(id).lean();
+        if (!tool) return res.status(400).json({ result: false, message: 'Could not find tool' });
+
+        if (req.body.name != undefined) tool.name = req.body.name;
+        if (req.body.field != undefined) tool.field = req.body.field;
+        if (req.body.description != undefined) tool.description = req.body.description;
+        if (req.body.type != undefined) tool.type = req.body.type;
+
+        await tool.save();
+
+        return res.status(201).json({ result: true, message: `Updated Tool` });
+    } catch (e) {
+        console.log(e.message);
+        return res.status(500).json({ result: false, message: e.message });
+    }
+}
+
+exports.deleteTool = async (req, res) => {
+    try {
+        const { id } = req.params;
+        await OpenAITool.findByIdAndDelete(id);
+        const campaigns = await Assistant.find({ tools: { $in: [id] } }).select("tools");
+        for (const c of campaigns) {
+            c.tools = c.tools.filter(oid => oid != id);
+            await c.save();
+        }
+        return res.status(201).json({ result: true, message: `Removed Tool` });
+    } catch (e) {
+        console.log(e.message);
+        return res.status(500).json({ result: false, message: e.message });
+    }
+}
+
+
 /* OpenAI Vector Store Files */
 exports.getVectorFiles = async function (req, res) {
     try {
@@ -257,10 +342,6 @@ exports.deleteVectorFile = async (req, res) => {
 
 
 /** Openai Realtime API */
-exports.get = async (req, res) => {
-    return res.status(200).json({});
-}
-
 exports.websocket = (ws, req) => {
     try {
         const openAiWs = new WebSocket(`wss://api.openai.com/v1/realtime?model=${OPENAI_MODEL}`, {

@@ -3,9 +3,10 @@ const mongoose = require('mongoose');
 const schema = mongoose.Schema({
     name: { type: String, required: true },
     description: { type: String, default: "" },
-    user: { type: String, required: true },    
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     api_key: { type: String, required: true }, // open key
     assistant_id: { type: String, required: true }, // openai assistant id
+    tools: { type: [String], default: [] },
     voice: { type: String, default: "alloy" },
     model: { type: String, default: "gpt-3.5-turbo" },
     temperature: { type: Number, default: 0.8, min: 0.0, max: 2.0 },
