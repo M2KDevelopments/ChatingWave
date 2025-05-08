@@ -4,6 +4,7 @@ const { auth } = require('../middlewares/authorization');
 
 
 // GETS
+router.get('/chat/demo', Controller.chatDemo);
 router.get('/models', auth, Controller.getModels);
 router.get('/assistants', auth, Controller.getAssistants);
 router.get('/assistants/:id/files', auth, Controller.getVectorFiles);

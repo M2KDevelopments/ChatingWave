@@ -1,3 +1,4 @@
+const path = require('path');
 const FS = require('fs');
 const fs = require('fs').promises;
 const WebSocket = require('ws');
@@ -7,7 +8,23 @@ const Assistant = require('../models/assistants');
 const { binaryStringToArrayBuffer, concat2ArrayBuffers, concatArrayBuffers, createWavHeader } = require('../helpers/audio.buffer')
 const OPENAI_MODEL = 'gpt-4o-realtime-preview-2024-10-01'
 const User = require('../models/user');
+const axios = require('axios');
 
+// https://platform.openai.com/docs/guides/realtime#connect-with-webrtc
+exports.chatDemo = async (req, res) => {
+    const headers = {
+        "Authorization": `Bearer ${process.env.OPENAI_API}`,
+        "Content-Type": "application/json",
+    };
+    const data = {
+        model: "gpt-4o-realtime-preview-2024-12-17",
+        voice: "verse",
+        instructions:"You are a helpful AI that give motivatioal quotes. Your name is Larry."
+    }
+    const response = await axios.post("https://api.openai.com/v1/realtime/sessions", data, { headers });
+    console.log(response.data)
+    return res.render(path.join(__dirname, '../views', 'chat'), { data: response.data })
+}
 // Get Models
 exports.getModels = async (req, res) => {
     try {

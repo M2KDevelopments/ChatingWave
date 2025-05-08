@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chating Wave</title>
+</head>
+
+<body>
+    <input style="display: none;" id="EPHEMERAL_KEY" value="<%= data.client_secret.value %>" />
+    <button onclick="init()">Start AI Conversation</button>
+    <button id="mute" onclick="toggleMute()">Mute</button>
+    <script defer>
+        /* global reference to the microphone track */
+        let micTrack; /* MediaStreamTrack */
+        let isMuted = false;
+        function toggleMute(e) { 
+            /* Handle mute/unmute */
+            if (!micTrack) return alert('Microphone not initialized.');
+            isMuted = !isMuted;
+            micTrack.enabled = !isMuted;
+            document.getElementById("mute").innerText = isMuted ? 'Unmute' : 'Mute';
+        }
+        async function init() {
+            /* https://platform.openai.com/docs/guides/realtime#connect-with-webrtc */
+            const EPHEMERAL_KEY = document.getElementById('EPHEMERAL_KEY').value;
+
+            /* Create a peer connection */
+            const pc = new RTCPeerConnection();
+
+            /* Set up to play remote audio from the model */
+            const audioEl = document.createElement("audio");
+            audioEl.autoplay = true;
+            pc.ontrack = e => audioEl.srcObject = e.streams[0];
+
+            /* Add local audio track for microphone input in the browser */
+            const ms = await navigator.mediaDevices.getUserMedia({
+                audio: true
+            });
+            micTrack = ms.getTracks()[0]; /* save track globally */
+            pc.addTrack(micTrack);
+
+            /* Set up data channel for sending and receiving events */
+            const dc = pc.createDataChannel("oai-events");
+            dc.onmessage = (e) => {
+                /* Realtime server events appear here! */
+                const json = JSON.parse(e.data)
+                console.log(json);
+            };
+            dc.onclose = (e) => {
+                console.log('Connection Closed')
+            }
+
+            /* Start the session using the Session Description Protocol (SDP) */
+            const offer = await pc.createOffer();
+            await pc.setLocalDescription(offer);
+
+            const baseUrl = "https://api.openai.com/v1/realtime";
+            const model = "gpt-4o-realtime-preview-2024-12-17";
+            const sdpResponse = await fetch(`${baseUrl}?model=${model}`, {
+                method: "POST",
+                body: offer.sdp,
+                headers: {
+                    Authorization: `Bearer ${EPHEMERAL_KEY}`,
+                    "Content-Type": "application/sdp"
+                },
+            });
+
+            const answer = {
+                type: "answer",
+                sdp: await sdpResponse.text(),
+            };
+            await pc.setRemoteDescription(answer);
+        } 
+    </script>
+</body>
+
+</html>
