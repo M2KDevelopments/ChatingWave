@@ -15,7 +15,7 @@
         /* global reference to the microphone track */
         let micTrack; /* MediaStreamTrack */
         let isMuted = false;
-        function toggleMute(e) { 
+        function toggleMute() {
             /* Handle mute/unmute */
             if (!micTrack) return alert('Microphone not initialized.');
             isMuted = !isMuted;
@@ -46,8 +46,32 @@
             dc.onmessage = (e) => {
                 /* Realtime server events appear here! */
                 const json = JSON.parse(e.data)
-                console.log(json);
-            };
+
+                /* Handle Events Here */
+                if (json.type == 'input_audio_buffer.speech_started') {
+                  /* human is talking */
+                }
+                else if (json.type == 'response.audio_transcript.delta') {
+                  /* AI is talking */
+                }
+                
+                if (json.type == 'response.function_call_arguments.done') {
+                    const data = JSON.parse(json.arguments);
+
+                    if (json.name == 'send-email') {
+                        // send contact info to backend
+                        
+                    }
+                } else if (json.type == 'rate_limits.updated') {
+                    /* Update Rates */
+                    const { rate_limits } = json;
+                    const ratelimit = rate_limits.find(r => r.name == 'tokens');
+                    const token = parseInt(ratelimit.remaining);
+                    const limit = parseInt(ratelimit.limit);
+                    const usage = limit - token;
+                    console.log('Used', usage);
+                }
+            }
             dc.onclose = (e) => {
                 console.log('Connection Closed')
             }

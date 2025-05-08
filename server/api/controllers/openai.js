@@ -10,6 +10,42 @@ const OPENAI_MODEL = 'gpt-4o-realtime-preview-2024-10-01'
 const User = require('../models/user');
 const axios = require('axios');
 
+const tools = [
+    {
+        type: "function",
+        name: "send-email",
+        description: `Get date and email for a meeting from the conversation. DO NOT COME UP WITH YOUR OWN NAME AND EMAIL.`,
+        parameters: {
+            type: "object",
+            properties: {
+                name: {
+                    type: "string",
+                    description: "The full name of the person. If not provided, infer from the conversation.",
+                },
+                email: {
+                    type: "string",
+                    description: "The email address of the person. Infer from the conversation. DO NOT generate one.",
+                },
+                phonenumber: {
+                    type: "string",
+                    description: "The phone number of the person. Include country code if available.",
+                },
+                description: {
+                    type: "string",
+                    description: "The reason or context for the meeting or conversation.",
+                },
+                date: { 
+                    type: "string",
+                    format: "date-time",
+                    description: `The date and time of the meeting or booking in ISO 8601 format (e.g., YYYY-MM-DDTHH:MM:SSZ). The current date and time is ${new Date().toISOString()}.`,
+                },
+            },
+            required: ["email", "date"],
+            // additionalProperties: false,
+        },
+    }
+]
+
 // https://platform.openai.com/docs/guides/realtime#connect-with-webrtc
 exports.chatDemo = async (req, res) => {
     const headers = {
@@ -19,10 +55,12 @@ exports.chatDemo = async (req, res) => {
     const data = {
         model: "gpt-4o-realtime-preview-2024-12-17",
         voice: "verse",
-        instructions:"You are a helpful AI that give motivatioal quotes. Your name is Larry."
+        instructions:"You are a helpful AI who is trying to book a meeting for marketing consultations. Your name is Larry.",
+       
+        tool_choice: "auto",
+        tools:tools,
     }
     const response = await axios.post("https://api.openai.com/v1/realtime/sessions", data, { headers });
-    console.log(response.data)
     return res.render(path.join(__dirname, '../views', 'chat'), { data: response.data })
 }
 // Get Models
