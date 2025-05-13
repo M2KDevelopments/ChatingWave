@@ -59,6 +59,19 @@ exports.chatDemo = async (req, res) => {
        
         tool_choice: "auto",
         tools:tools,
+        input_audio_transcription:{
+                language:"en",
+                model:"gpt-4o-transcribe", //whisper-1
+                // prompt:""
+            },
+            "turn_detection": {
+                "type": "server_vad",
+                "threshold": 0.5,
+                "prefix_padding_ms": 300,
+                "silence_duration_ms": 500 ,
+                "create_response": true,
+                "interrupt_response": true
+            },
     }
     const response = await axios.post("https://api.openai.com/v1/realtime/sessions", data, { headers });
     return res.render(path.join(__dirname, '../views', 'chat'), { data: response.data })

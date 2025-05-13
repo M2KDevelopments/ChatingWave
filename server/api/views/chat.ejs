@@ -54,6 +54,19 @@
                 else if (json.type == 'response.audio_transcript.delta') {
                   /* AI is talking */
                 }
+
+                
+                
+                /* What the AI said */
+                if (json.type == 'response.audio_transcript.done') {
+                    const text = json.transcript;
+
+                }
+
+                /* What the User said */
+                if (json.type == 'conversation.item.input_audio_transcription.completed') {
+                    const text = json.transcript
+                }
                 
                 if (json.type == 'response.function_call_arguments.done') {
                     const data = JSON.parse(json.arguments);
