@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa";
+import Link from "next/link";
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
@@ -77,9 +78,9 @@ export default function Login() {
 
         <p className="text-center text-sm text-gray-600">
           Don’t have an account?{" "}
-          <a href="#" className="text-indigo-500 font-semibold hover:underline">
+          <Link href="/signup" className="text-indigo-500 font-semibold hover:underline">
             Sign up
-          </a>
+          </Link>
         </p>
       </div>
     </div>
