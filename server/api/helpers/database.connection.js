@@ -11,6 +11,9 @@ exports.startMongoDB = (production = false) => {
     const databasename = process.env.MONGO_DB_NAME;
     const user = process.env.MONGO_DB_USER;
     const password = process.env.MONGO_DB_PASS;
+
+    console.log({user});
+
     const connection = production ?
         `mongodb+srv://${user}:${password}@m2kdevelopmentscluster.xval1.mongodb.net/${databasename}?retryWrites=true&w=majority`
         :
