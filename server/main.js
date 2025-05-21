@@ -25,6 +25,8 @@ database.startMongoDB(true);
 //routes
 app.all('/', (req, res) => res.status(200).send('Health Check Successful'));
 app.use('/api/openai', require('./api/routes/openai'));
+app.use('/api/gohighrevel', require('./api/routes/gohighlevel')); 
+
 
 // 404 - errors
 app.use((req, res, next) => {
