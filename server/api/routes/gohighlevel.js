@@ -11,7 +11,7 @@ const Controller = require("../controllers/gohighlevel");
 // API URL - https://{domain}/api/gohighrevel
 router.get('/oauth', Controller.oauth);
 
-// API URL - https://{domain}/api/facebook/callback
+// API URL - https://{domain}/api/gohighrevel/callback
 router.get('/callback', Controller.callback); 
 
  
